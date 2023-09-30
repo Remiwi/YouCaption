@@ -4,7 +4,7 @@ Cute little guide for y'all to get set up quickly and hopefully understand rough
 
 ## Frontend
 
-This shouldn't require any setup. To run the Next server (the thing that serves the content to your browser) run `npm run dev` in a new terminal.
+This shouldn't require any setup. To run the Next server (the thing that serves the content to your browser) run `npm run dev` in a new terminal from `/frontend`.
 
 ## Backend
 
