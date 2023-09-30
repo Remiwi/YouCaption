@@ -1,5 +1,5 @@
 # python venv
-/venv/
+/backend/venv/
 
 # db connection config files
 /backend/config.ini
