@@ -18,22 +18,33 @@ This shouldn't require any setup. To run the Next server (the thing that serves 
 
 4. Create the `youcaption` database. This is gonna be your version of the database; it will share the same structure (the python code ensures that), but it won't have the same entries. Open a new terminal (you can close the old one) and run `psql -U your_username -d postgres` to open the `postgres` database (a default database that gets added when you install PostgreSQL) as your new user. Then run `CREATE DATABASE youcaption` to create the database. You can close this terminal now and probably forget about psql unless you need it for debugging the database.
 
-5. Change your version of `backend/config.ini`. This is just a file that isn't synced to github that will have each of our login info. You should change the `user` and `password` fields to match the user you created, and `port` to match whatever port you specified during the PostgreSQL installation process.
-
 ### FastAPI server
 
-Installing dependencies:
+Setup:
 
-1. Activate the virtual enviornment. This is just the python thing you use to keep installations separate. In a new terminal, from `/backend`, run `venv\Scripts\activate` on Windows or `source venv/bin/activate` on Mac/Linux.
+1. Create the virtual environment. This is just the python thing you use to keep installations separate. Open a new terminal in `/backend` and run `python -m venv env`.
 
-2. Install the dependencies. These are in the `requirements.txt` file. With the virtual environment activated, run `pip install -r requirements.txt`.
+2. Activate the virtual enviornment. In a terminal, from `/backend`, run `env\Scripts\activate` on Windows or `source env/bin/activate` on Mac/Linux.
 
-3. At any time you can deactivate the virtual environment by entering `deactivate` in the terminal where you activated it.
+    - At any time you can deactivate the virtual environment by entering `deactivate` in the terminal where you activated it.
+
+3. Install the dependencies. These are in the `requirements.txt` file. With the virtual environment activated, run `pip install -r requirements.txt`.
+
+4. Create the `config.ini` file. This is just a file that will contain the info needed to connect to the database on your machine. In `/backend`, create `config.ini` with the following content. Replace the `port`, `user`, and `password` to what you setup above for the PostgreSQL server.
+
+```
+[database]
+host = 127.0.0.1
+port = YOUR_PORT
+dbname = youcaption
+user = YOUR_USERNAME_HERE
+password = YOUR_PASSWORD_HERE
+```
 
 Running the server:
 
 1. Activate the virutal environment. In a new terminal, from `/backend`, run `venv\Scripts\activate` on Windows or `source venv/bin/activate` on Mac/Linux.
 
-2. Run `python -m uvicorn main:app --reload`. `main` refers to `main.py`, our entry point. `app` is the object we make inside our entrypoint: `app = FastAPI()`. `--reload` is to make the server restart after code changes (only use for development).
+    - At any time you can deactivate the virtual environment by entering `deactivate` in the terminal where you activated it.
 
-3. At any time you can deactivate the virtual environment by entering `deactivate` in the terminal where you activated it.
+3. Run `python -m uvicorn main:app --reload`. `main` refers to `main.py`, our entry point. `app` is the object we make inside our entrypoint: `app = FastAPI()`. `--reload` is to make the server restart after code changes (only use for development).
