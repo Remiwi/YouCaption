@@ -32,13 +32,52 @@ def get_db_conn():
 with closing(get_db_conn()) as conn:
     with closing(conn.cursor()) as cursor:
         # Set up tables here if need be; don't do it in psql since that won't reflect on other machines
+
+        # onlyNotifyOnLangMatchFollowing is true if the user only wants to be notified of a following user uploading a new caption
+        # when that caption is in the chosen language
+        # onlyNotifyOnLangMatchVideos is true if the user only wants to be notified of a saved video receiving a new caption when
+        # that caption is in the chosen language
         cursor.execute('''
-        CREATE TABLE IF NOT EXISTS dummy (
-            id SERIAL PRIMARY KEY NOT NULL,
-            name VARCHAR(255) NOT NULL
+        CREATE TABLE IF NOT EXISTS users (
+            googleID VARCHAR(255) PRIMARY KEY,
+            username VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            language VARCHAR(255) NOT NULL,
+            onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL,
+            onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL
+        )
+        ''')
+
+        conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS captions (
+            id SERIAL PRIMARY KEY,
+            userGID VARCHAR(255) NOT NULL,
+            videoID VARCHAR(255) NOT NULL,
+            filename VARCHAR(255) NOT NULL,
+            FOREIGN KEY (userGID) REFERENCES users(googleID)
         )
         ''')
         conn.commit()
 
-        cursor.execute("INSERT INTO dummy (name) VALUES ('John Doe')")
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS userFollows (
+            followerGID VARCHAR(255) NOT NULL,
+            followingGID VARCHAR(255) NOT NULL,
+            PRIMARY KEY (followerGID, followingGID),
+            FOREIGN KEY (followerGID) REFERENCES users(googleID),
+            FOREIGN KEY (followingGID) REFERENCES users(googleID)
+        )
+        ''')
+        conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS userSavedVideos (
+            userGID VARCHAR(255) NOT NULL,
+            videoID VARCHAR(255) NOT NULL,
+            PRIMARY KEY (userGID, videoID),
+            FOREIGN KEY (userGID) REFERENCES users(googleID)
+        )
+        ''')
         conn.commit()
