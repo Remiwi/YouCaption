@@ -43,7 +43,7 @@ password = YOUR_PASSWORD_HERE
 
 Running the server:
 
-1. Activate the virutal environment. In a new terminal, from `/backend`, run `venv\Scripts\activate` on Windows or `source venv/bin/activate` on Mac/Linux.
+1. Activate the virutal environment. In a new terminal, from `/backend`, run `env\Scripts\activate` on Windows or `source env/bin/activate` on Mac/Linux.
 
     - At any time you can deactivate the virtual environment by entering `deactivate` in the terminal where you activated it.
 
