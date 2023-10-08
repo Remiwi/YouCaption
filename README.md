@@ -16,7 +16,7 @@ This shouldn't require any setup. To run the Next server (the thing that serves 
 
 3. Create a new user in psql. This is going to be username/password pair you use to connect to the DB server from the API server. In theory you could use the `postgres` user for this, but you probably shouldn't. Run `CREATE ROLE new_username WITH LOGIN PASSWORD 'new_password' CREATEDB;` from within psql, replacing the username and password to what you want.
 
-4. Create the `youcaption` database. This is gonna be your version of the database; it will share the same structure (the python code ensures that), but it won't have the same entries. Open a new terminal (you can close the old one) and run `psql -U your_username -d postgres` to open the `postgres` database (a default database that gets added when you install PostgreSQL) as your new user. Then run `CREATE DATABASE youcaption` to create the database. You can close this terminal now and probably forget about psql unless you need it for debugging the database.
+4. Create the `youcaption` database. This is gonna be your version of the database; it will share the same structure (the python code ensures that), but it won't have the same entries. Open a new terminal (you can close the old one) and run `psql -U your_username -d postgres` to open the `postgres` database (a default database that gets added when you install PostgreSQL) as your new user. Then run `CREATE DATABASE youcaption;` to create the database. You can close this terminal now and probably forget about psql unless you need it for debugging the database.
 
 ### FastAPI server
 
