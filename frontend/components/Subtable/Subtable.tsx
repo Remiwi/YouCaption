@@ -61,16 +61,20 @@ export default function Subtable(SubtableProps: SubtableProps) {
 
   return (
     <div className={styles.subtable}>
-      <Filter
-        filterId="language"
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
-      <Filter
-        filterId="author"
-        columnFilters={columnFilters}
-        setColumnFilters={setColumnFilters}
-      />
+      <div className={styles.filters}>
+        <Filter
+          filterId="language"
+          icon={"/icons/language.png"}
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilters}
+        />
+        <Filter
+          filterId="author"
+          icon={"/icons/signature.png"}
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilters}
+        />
+      </div>
       <table>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>

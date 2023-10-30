@@ -1,11 +1,16 @@
+import styles from "./Filter.module.css";
+import Image from "next/image";
+
 type FilterProps = {
   filterId: string;
+  icon: any;
   columnFilters: any[];
   setColumnFilters: any;
 };
 
 export default function Filter({
   filterId,
+  icon,
   columnFilters,
   setColumnFilters,
 }: FilterProps) {
@@ -17,7 +22,13 @@ export default function Filter({
     );
 
   return (
-    <div>
+    <div className={styles.filter}>
+      <Image
+        src={icon}
+        alt={"Filter icon for " + filterId}
+        width={25}
+        height={25}
+      />
       <input
         type="text"
         value={value}

@@ -27,3 +27,11 @@
   text-decoration: none;
   color: var(--color-blue-links); 
 }
+
+.filters {
+  display: flex;
+  flex-direction: row;
+  gap: 5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
