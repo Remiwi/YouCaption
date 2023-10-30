@@ -37,11 +37,30 @@ with closing(get_db_conn()) as conn:
         # when that caption is in the chosen language
         # onlyNotifyOnLangMatchVideos is true if the user only wants to be notified of a saved video receiving a new caption when
         # that caption is in the chosen language
+
+        # this is the command to drop all the tables in the schema
+        # be careful when using this!!!
+
+        # cursor.execute('''
+        #     DO $$
+        #     DECLARE 
+        #         r record;
+        #     BEGIN
+        #         FOR r IN SELECT quote_ident(tablename) AS tablename, quote_ident(schemaname) AS schemaname FROM pg_tables WHERE schemaname = 'public'
+        #         LOOP
+        #             RAISE INFO 'Dropping table %.%', r.schemaname, r.tablename;
+        #             EXECUTE format('DROP TABLE IF EXISTS %I.%I CASCADE', r.schemaname, r.tablename);
+        #         END LOOP;
+        #     END$$;
+        # ''')
+
+        # conn.commit()
+
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             googleID VARCHAR(255) PRIMARY KEY,
-            username VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL,
+            username VARCHAR(255) UNIQUE NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
             language VARCHAR(255) NOT NULL,
             onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL,
             onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL
@@ -55,7 +74,7 @@ with closing(get_db_conn()) as conn:
             id SERIAL PRIMARY KEY,
             userGID VARCHAR(255) NOT NULL,
             videoID VARCHAR(255) NOT NULL,
-            filename VARCHAR(255) NOT NULL,
+            file_path VARCHAR(255) UNIQUE NOT NULL,
             FOREIGN KEY (userGID) REFERENCES users(googleID)
         )
         ''')
@@ -79,5 +98,16 @@ with closing(get_db_conn()) as conn:
             PRIMARY KEY (userGID, videoID),
             FOREIGN KEY (userGID) REFERENCES users(googleID)
         )
+        ''')
+        conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sessions (
+            sessionID SERIAL PRIMARY KEY,
+            userGID VARCHAR(255) NOT NULL,
+            data JSONB,
+            expiration TIMESTAMP,
+            creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )           
         ''')
         conn.commit()
