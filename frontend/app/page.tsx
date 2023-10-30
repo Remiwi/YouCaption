@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
 import extractVideoID from "@/utilities/extractVideoID";
@@ -37,7 +38,14 @@ export default function Home() {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
           />
-          <button onClick={handleSubmit}>Q</button>
+          <button onClick={handleSubmit}>
+            <Image
+              src="/icons/search.png"
+              alt="Search icon"
+              width={100}
+              height={100}
+            />
+          </button>
         </div>
       </div>
       <p className={styles.context}>
