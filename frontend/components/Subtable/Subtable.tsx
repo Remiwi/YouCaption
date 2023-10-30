@@ -5,12 +5,14 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
 import styles from "./Subtable.module.css";
 
 import DUMMY_DATA from "./DummyData";
+import Filter from "../Filters/Filter";
 
 type SubtableProps = {
   subtitles: {
@@ -46,14 +48,29 @@ const columns = [
 
 export default function Subtable(SubtableProps: SubtableProps) {
   const [data, setData] = useState(DUMMY_DATA);
+  const [columnFilters, setColumnFilters] = useState([]);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      columnFilters,
+    },
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
   return (
     <div className={styles.subtable}>
+      <Filter
+        filterId="language"
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
+      <Filter
+        filterId="author"
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
       <table>
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
