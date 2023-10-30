@@ -1,0 +1,29 @@
+.subtable {
+  width: 100%;
+  font-size: 1.25rem;
+}
+
+.subtable table {
+  width: 100%;
+  border: var(--color-grey-light) 2px solid;
+  padding: 0.5rem;
+}
+
+.subtable tr:nth-child(even) {
+  background-color: var(--color-grey-neutral);
+}
+
+.subtable th, .subtable td {
+  text-align: left;
+  border-color: transparent
+}
+
+.subtable td:last-child, .subtable th:last-child {
+  text-align: center;
+}
+
+.subtable a {
+  font-size: 2rem;
+  text-decoration: none;
+  color: var(--color-blue-links); 
+}
