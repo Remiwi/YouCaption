@@ -13,9 +13,7 @@ import {
 
 import styles from "./Subtable.module.css";
 
-import DUMMY_DATA from "./DummyData";
 import Filter from "../Filters/Filter";
-import { get } from "http";
 
 type SubtableProps = {
   subtitles: {
@@ -50,9 +48,9 @@ const columns = [
   },
 ];
 
-export default function Subtable(SubtableProps: SubtableProps) {
+export default function Subtable({ subtitles }: SubtableProps) {
   const [pageNumber, setPageNumber] = useState("1");
-  const [data, setData] = useState(DUMMY_DATA);
+  const [data, setData] = useState(subtitles);
   const [columnFilters, setColumnFilters] = useState([]);
   const table = useReactTable({
     data,
