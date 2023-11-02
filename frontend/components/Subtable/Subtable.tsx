@@ -145,7 +145,7 @@ export default function Subtable(SubtableProps: SubtableProps) {
           onChange={(e) => {
             setPageNumber(e.target.value);
             // check if entered value is a number
-            if (isNaN(Number(e.target.value))) return;
+            if (isNaN(Number(e.target.value)) || e.target.value === "") return;
             const pageIndex = Number(e.target.value) - 1;
             table.setPageIndex(pageIndex);
           }}
