@@ -8,7 +8,7 @@ const DATA = [
   {
     author: 'Gabe Newell',
     language: 'English',
-    rating: 5,
+    rating: 4.8,
     download: "https://www.bing.com",
   },
   {

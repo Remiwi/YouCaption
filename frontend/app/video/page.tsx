@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
 import Subtable from "@/components/Subtable/Subtable";
+import DATA from "@/components/Subtable/DummyData";
 
 export default function Video() {
   const params = useSearchParams();
@@ -14,17 +16,33 @@ export default function Video() {
     return null;
   }
 
+  const [subtitles, setSubtitles] = useState(DATA);
+  const USER_LANG = "english";
+
   return (
     <div className={styles.columns}>
       <div className={styles.videoColumn}>
         <YoutubeEmbed embedId={v} />
-        <p>Total Subtitles: 3</p>
-        <p>Subs in your language: 2</p>
-        <p>Highest rating for your langauge: 5</p>
+        <p>Total Subtitles: {subtitles.length}</p>
+        <p>
+          Subs in your language:{" "}
+          {
+            subtitles.filter((s) => s.language.toLowerCase() === USER_LANG)
+              .length
+          }
+        </p>
+        <p>
+          Highest rating for your langauge:{" "}
+          {Math.max(
+            ...subtitles
+              .filter((s) => s.language.toLowerCase() === USER_LANG)
+              .map((s) => s.rating)
+          )}
+        </p>
         <button>Make subs!</button>
       </div>
       <div className={styles.subsColumn}>
-        <Subtable subtitles={[]} />
+        <Subtable subtitles={DATA} />
       </div>
     </div>
   );
