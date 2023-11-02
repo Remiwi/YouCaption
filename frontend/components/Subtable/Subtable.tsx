@@ -86,7 +86,7 @@ export default function Subtable(SubtableProps: SubtableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id}>
+              <th className={styles[header.id]} key={header.id}>
                 <div>
                   {header.column.getCanSort() && (
                     <Image

@@ -81,3 +81,23 @@
 .pages input:focus {
   outline: none;
 }
+
+.subtable th {
+  min-width: 7rem;
+}
+
+.author {
+  width: 50%;
+}
+
+.language {
+  width: 50%;
+}
+
+.rating {
+  width: 7rem;
+}
+
+.download {
+  width: 7rem;
+}
