@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -13,6 +14,7 @@ import styles from "./Subtable.module.css";
 
 import DUMMY_DATA from "./DummyData";
 import Filter from "../Filters/Filter";
+import { get } from "http";
 
 type SubtableProps = {
   subtitles: {
@@ -43,6 +45,7 @@ const columns = [
     accessorKey: "download",
     header: "Download",
     cell: (props: any) => <a href={props.getValue()}>⇓</a>,
+    enableSorting: false,
   },
 ];
 
@@ -57,6 +60,7 @@ export default function Subtable(SubtableProps: SubtableProps) {
       columnFilters,
     },
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
@@ -79,7 +83,41 @@ export default function Subtable(SubtableProps: SubtableProps) {
         {table.getHeaderGroups().map((headerGroup) => (
           <tr key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id}>{header.column.columnDef.header as any}</th>
+              <th key={header.id}>
+                <div>
+                  {header.column.getCanSort() && (
+                    <Image
+                      src="/icons/sort.png"
+                      alt="Sort icon"
+                      width={100}
+                      height={100}
+                      onClick={header.column.getToggleSortingHandler()}
+                    />
+                  )}
+                  {header.column.columnDef.header as any}
+                  {
+                    {
+                      asc: (
+                        <Image
+                          src="/icons/arrowDown.png"
+                          alt="arrowDown"
+                          width={100}
+                          height={100}
+                        />
+                      ),
+                      desc: (
+                        <Image
+                          src="/icons/arrowUp.png"
+                          alt="arrowUp"
+                          width={100}
+                          height={100}
+                        />
+                      ),
+                      none: <></>,
+                    }[header.column.getIsSorted() || "none"]
+                  }
+                </div>
+              </th>
             ))}
           </tr>
         ))}

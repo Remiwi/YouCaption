@@ -15,7 +15,7 @@
 
 .subtable th, .subtable td {
   text-align: left;
-  border-color: transparent
+  border-color: transparent;
 }
 
 .subtable td:last-child, .subtable th:last-child {
@@ -34,4 +34,14 @@
   gap: 5rem;
   align-items: center;
   margin-bottom: 1rem;
+}
+
+.subtable th img {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.subtable th div {
+  display: flex;
+  align-items: center;
 }
