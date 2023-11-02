@@ -45,3 +45,39 @@
   display: flex;
   align-items: center;
 }
+
+.pages {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.pages img {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.pages button {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pages input {
+  width: 3rem;
+  height: 2rem;
+  color: var(--color-white);
+  background: var(--color-grey-neutral);
+  border: var(--color-grey-light) 2px solid;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 1.25rem;
+  margin: -5px;
+}
+
+.pages input:focus {
+  outline: none;
+}

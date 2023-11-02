@@ -6,6 +6,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -50,6 +51,7 @@ const columns = [
 ];
 
 export default function Subtable(SubtableProps: SubtableProps) {
+  const [pageNumber, setPageNumber] = useState("1");
   const [data, setData] = useState(DUMMY_DATA);
   const [columnFilters, setColumnFilters] = useState([]);
   const table = useReactTable({
@@ -61,6 +63,7 @@ export default function Subtable(SubtableProps: SubtableProps) {
     },
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -134,6 +137,51 @@ export default function Subtable(SubtableProps: SubtableProps) {
           </tr>
         ))}
       </table>
+      <div className={styles.pages}>
+        <p>Page</p>
+        <input
+          type="text"
+          value={pageNumber}
+          onChange={(e) => {
+            setPageNumber(e.target.value);
+            // check if entered value is a number
+            if (isNaN(Number(e.target.value))) return;
+            const pageIndex = Number(e.target.value) - 1;
+            table.setPageIndex(pageIndex);
+          }}
+        />
+        <p>of {table.getPageCount()}</p>
+        <button
+          onClick={() => {
+            table.previousPage();
+            setPageNumber(table.getState().pagination.pageIndex.toString());
+          }}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <Image
+            src="/icons/arrowLeft.png"
+            alt="arrowLeft"
+            width={100}
+            height={100}
+          />
+        </button>
+        <button
+          onClick={() => {
+            table.nextPage();
+            setPageNumber(
+              (table.getState().pagination.pageIndex + 2).toString()
+            );
+          }}
+          disabled={!table.getCanNextPage()}
+        >
+          <Image
+            src="/icons/arrowRight.png"
+            alt="arrowRight"
+            width={100}
+            height={100}
+          />
+        </button>
+      </div>
     </div>
   );
 }
