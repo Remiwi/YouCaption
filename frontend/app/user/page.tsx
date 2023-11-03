@@ -16,6 +16,19 @@ export default function User() {
     return null;
   }
 
+  const [subtitles, setSubtitles] = useState(DATA);
+  const USER_LANG = "english";
+
+  const totalSubs = subtitles.length;
+  const subsInYourLang = subtitles.filter(
+    (s) => s.language.toLowerCase() === USER_LANG
+  ).length;
+  const avgRating = subtitles.reduce((acc, s) => acc + s.rating, 0) / totalSubs;
+  const avgRatingInYourLang =
+    subtitles
+      .filter((s) => s.language.toLowerCase() === USER_LANG)
+      .reduce((acc, s) => acc + s.rating, 0) / subsInYourLang;
+
   return (
     <div className={styles.column}>
       <div className={styles.userHeader}>
@@ -29,14 +42,14 @@ export default function User() {
           </div>
           <div className={styles.statsRow}>
             <div className={styles.stat}>
-              <p>200 posts</p>
-              <p>100 in your language</p>
+              <p>{totalSubs} subtitles</p>
+              <p>{subsInYourLang} in your language</p>
             </div>
             <div className={styles.stat}>
-              <p>4.1 avg rating</p>
-              <p>4.8 in your language</p>
+              <p>{avgRating.toFixed(1)} avg rating</p>
+              <p>{avgRatingInYourLang.toFixed(1)} in your language</p>
             </div>
-            <p>123 followers</p>
+            <p>? followers</p>
           </div>
         </div>
       </div>
