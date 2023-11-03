@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   flexRender,
   getCoreRowModel,
@@ -28,7 +29,11 @@ const columns = [
   {
     accessorKey: "author",
     header: "Author",
-    cell: (props: any) => <p>{props.getValue()}</p>,
+    cell: (props: any) => (
+      <p>
+        {<Link href={"/user?u=" + props.getValue()}>{props.getValue()}</Link>}
+      </p>
+    ),
   },
   {
     accessorKey: "language",

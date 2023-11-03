@@ -22,7 +22,7 @@
   text-align: center;
 }
 
-.subtable a {
+.subtable td:last-child a {
   font-size: 2rem;
   text-decoration: none;
   color: var(--color-blue-links); 
