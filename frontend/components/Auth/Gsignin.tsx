@@ -7,8 +7,6 @@ declare global {
 }
 
 export default function Gsignin() {
-    window.handleCredentialResponse = handleCredentialResponse
-
     // Must insert google button script on every component render
     useEffect(() => {
         const script = document.createElement('script')
@@ -17,13 +15,14 @@ export default function Gsignin() {
         script.defer = true
 
         document.body.appendChild(script)
-
+        window.addEventListener("scroll", handleCredentialResponse)
         return () => {
             document.body.removeChild(script)
+            window.removeEventListener("scroll", handleCredentialResponse)
         }
     })
 
-    
+
     async function decodeJwtResponse(credential: any) {
         let response = await fetch("http://127.0.0.1:8000/login", {
             method: "POST", 
