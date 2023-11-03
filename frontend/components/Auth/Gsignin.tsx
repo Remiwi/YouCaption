@@ -1,8 +1,14 @@
 "use client";
 import { useEffect } from "react";
-
+declare global {
+    interface Window {
+        handleCredentialResponse?: any
+    }
+}
 
 export default function Gsignin() {
+    window.handleCredentialResponse = handleCredentialResponse
+
     // Must insert google button script on every component render
     useEffect(() => {
         const script = document.createElement('script')
@@ -17,10 +23,34 @@ export default function Gsignin() {
         }
     })
 
-    /* function handleCredentialResponse(response) {
-        send response to backend -> decode + validate (authlib + google-auth) ->
-        account creation / session mgmt -> return needed info
-    } */
+    
+    async function decodeJwtResponse(credential: any) {
+        let response = await fetch("http://127.0.0.1:8000/login", {
+            method: "POST", 
+            mode: "cors",
+            credentials: "include",
+            headers: {
+                "Content-Type":'application/x-www-form-urlencoded'
+            },
+            body: "credential=" + credential
+        }) 
+        response = await response.json()
+        return response
+    }    
+
+    //callback for google sign in 
+    async function handleCredentialResponse(response: any) {
+        console.log(response)
+        const responsePayload:any = await decodeJwtResponse(response.credential)
+
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
+    }
+
     return (
         <>
             <div id="g_id_onload"
@@ -28,7 +58,7 @@ export default function Gsignin() {
                 data-context="signin"
                 data-ux_mode="popup"
                 data-login_uri="http://localhost:3000"
-                //data-callback = "handleCredentialResponse"
+                data-callback = "handleCredentialResponse"
                 data-auto_prompt="false">
             </div>
 
