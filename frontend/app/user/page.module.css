@@ -1,0 +1,101 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  width: 1920px;
+  max-width: 100%;
+  padding: 0 400px;
+  box-sizing: border-box;
+  margin-bottom: 10rem;
+}
+
+.userHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: baseline;
+  align-items: center;  
+  gap: 10%;
+  background-color: var(--color-grey-darker);
+  padding: 2rem;
+  border-radius: 3rem;
+  box-sizing: border-box;
+  min-width: 505px;
+}
+
+.fakePFP {
+  width: 200px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background-color: #CD8B76;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-grey-darker);
+  font-size: 5rem;
+}
+
+.headerRows {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  height: 100%;
+  flex: 1;
+  padding-right: 5rem;
+}
+
+.usernameRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.usernameRow p {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.statsRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.statsRow p {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.stat :last-child {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+@media (max-width: 1700px) {
+  .usernameRow p {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .statsRow p {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  
+  .stat :last-child {
+    font-size: 0.8rem;
+    font-weight: normal;
+  }
+}
+
+@media (max-width: 1550px) {
+  .fakePFP {
+    display: none;
+  }
+
+  .headerRows {
+    padding-right: 0;
+  }
+}
