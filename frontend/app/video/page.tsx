@@ -42,7 +42,7 @@ export default function Video() {
         <button>Make subs!</button>
       </div>
       <div className={styles.subsColumn}>
-        <Subtable subtitles={DATA} />
+        <Subtable subtitles={DATA} page="video" />
       </div>
     </div>
   );

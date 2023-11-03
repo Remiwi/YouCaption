@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
 
 import styles from "./Subtable.module.css";
@@ -19,10 +21,12 @@ import Filter from "../Filters/Filter";
 type SubtableProps = {
   subtitles: {
     author: string;
+    video: string;
     language: string;
     rating: number;
     download: string;
   }[];
+  page: "author" | "video";
 };
 
 const columns = [
@@ -34,6 +38,17 @@ const columns = [
         {<Link href={"/user?u=" + props.getValue()}>{props.getValue()}</Link>}
       </p>
     ),
+    enableHiding: true,
+  },
+  {
+    accessorKey: "video",
+    header: "Video",
+    cell: (props: any) => (
+      <p>
+        {<Link href={"/video?v=" + props.getValue()}>{props.getValue()}</Link>}
+      </p>
+    ),
+    enableHiding: true,
   },
   {
     accessorKey: "language",
@@ -53,20 +68,27 @@ const columns = [
   },
 ];
 
-export default function Subtable({ subtitles }: SubtableProps) {
+export default function Subtable({ subtitles, page }: SubtableProps) {
   const [pageNumber, setPageNumber] = useState("1");
   const [data, setData] = useState(subtitles);
   const [columnFilters, setColumnFilters] = useState([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({
+      author: page === "video",
+      video: page === "author",
+    });
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnFilters,
+      columnVisibility: columnVisibility,
     },
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
   });
 
   return (
@@ -78,12 +100,14 @@ export default function Subtable({ subtitles }: SubtableProps) {
           columnFilters={columnFilters}
           setColumnFilters={setColumnFilters}
         />
-        <Filter
-          filterId="author"
-          icon={"/icons/signature.png"}
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilters}
-        />
+        {page === "video" && (
+          <Filter
+            filterId="author"
+            icon={"/icons/signature.png"}
+            columnFilters={columnFilters}
+            setColumnFilters={setColumnFilters}
+          />
+        )}
       </div>
       <table>
         {table.getHeaderGroups().map((headerGroup) => (
