@@ -44,12 +44,24 @@ async def validate(credential: Annotated[str, Form()], request: Request):
     # print(credential)
 
 @app.get("/vidPgCapData/{videoID}")
-async def get_capDataList(videoID: str):
+async def get_VCapDataList(videoID: str):
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             query = "SELECT author, language, rating, file_path FROM captions WHERE videoID = %s"
 
             cursor.execute(query,(videoID,))
+            caps = cursor.fetchall()
+
+            capList = [cap[0] for cap in caps]
+            return(capList)
+        
+@app.get("/pfPgCapData/{videoID}")
+async def get_PCapDataList(userGID: str):
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            query = "SELECT author, language, rating, file_path FROM captions WHERE userGID = %s"
+
+            cursor.execute(query,(userGID,))
             caps = cursor.fetchall()
 
             capList = [cap[0] for cap in caps]
