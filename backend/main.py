@@ -43,5 +43,14 @@ async def validate(credential: Annotated[str, Form()], request: Request):
     #     return JSONResponse('Failed to verify double submit cookie.', status_code=status.HTTP_400_BAD_REQUEST)
     # print(credential)
 
+@app.get("/vidPgCapData/{videoID}")
+async def get_capDataList(videoID: str):
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            query = "SELECT author, language, rating, file_path FROM captions WHERE videoID = %s"
 
- 
+            cursor.execute(query,(videoID,))
+            caps = cursor.fetchall()
+
+            capList = [cap[0] for cap in caps]
+            return(capList)
