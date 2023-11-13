@@ -75,7 +75,11 @@ with closing(get_db_conn()) as conn:
             userGID VARCHAR(255) NOT NULL,
             videoID VARCHAR(255) NOT NULL,
             file_path VARCHAR(255) UNIQUE NOT NULL,
-            FOREIGN KEY (userGID) REFERENCES users(googleID)
+            author VARCHAR(255),
+            language VARCHAR(255),
+            rating INT,
+            FOREIGN KEY (userGID) REFERENCES users(googleID),
+            FOREIGN KEY (videoID) REFERENCES videos(videoID)
         )
         ''')
         conn.commit()
@@ -111,3 +115,15 @@ with closing(get_db_conn()) as conn:
         )           
         ''')
         conn.commit()
+
+def get_capDataList(videoID):
+    cursor = get_db_conn().cursor()
+    query = "SELECT c.author, c.language, c.rating, c.file_path FROM captions c WHERE c.videoID = %s"
+
+    cursor.execute(query,videoID)
+    caps = cursor.fetchall()
+
+    capList = [cap[0] for cap in caps]
+
+    cursor.close()
+    return capList
