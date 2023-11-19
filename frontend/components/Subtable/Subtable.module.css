@@ -100,9 +100,66 @@
 }
 
 .rating {
-  width: 7rem;
+  width: 9rem;
 }
 
 .download {
   width: 7rem;
+}
+
+/* jsahbdhsadksahd */
+
+.ratingcell {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.starbox {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+}
+
+.starbox img {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.starbox img {
+  position: absolute;
+}
+
+.starbox img:last-child {
+  position: relative;
+  visibility: hidden;
+}
+
+.stardefaultvisible {
+  visibility: visible !important;
+}
+
+.starbox:hover .stardefaultvisible {
+  visibility: hidden !important;
+}
+
+.star:hover :last-child {
+  visibility: visible !important;
+}
+
+.star:hover + .star :last-child {
+  visibility: visible !important;
+}
+
+.star:hover + .star + .star :last-child {
+  visibility: visible !important;
+}
+
+.star:hover + .star + .star + .star :last-child {
+  visibility: visible !important;
+}
+
+.star:hover + .star + .star + .star + .star :last-child {
+  visibility: visible !important;
 }

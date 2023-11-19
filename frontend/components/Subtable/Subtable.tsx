@@ -58,7 +58,12 @@ const columns = [
   {
     accessorKey: "rating",
     header: "Rating",
-    cell: (props: any) => <p>{props.getValue()}</p>,
+    cell: (props: any) => (
+      <div className={styles.ratingcell}>
+        <p>{props.getValue()}</p>
+        <Stars defaultValue={0} />
+      </div>
+    ),
   },
   {
     accessorKey: "download",
@@ -94,12 +99,6 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
   return (
     <div className={styles.subtable}>
       <div className={styles.filters}>
-        <Filter
-          filterId="language"
-          icon={"/icons/language.png"}
-          columnFilters={columnFilters}
-          setColumnFilters={setColumnFilters}
-        />
         {page === "video" && (
           <Filter
             filterId="author"
@@ -108,61 +107,69 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
             setColumnFilters={setColumnFilters}
           />
         )}
+        <Filter
+          filterId="language"
+          icon={"/icons/language.png"}
+          columnFilters={columnFilters}
+          setColumnFilters={setColumnFilters}
+        />
       </div>
       <table>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th className={styles[header.id]} key={header.id}>
-                <div>
-                  {header.column.getCanSort() && (
-                    <Image
-                      src="/icons/sort.png"
-                      alt="Sort icon"
-                      width={100}
-                      height={100}
-                      onClick={header.column.getToggleSortingHandler()}
-                    />
-                  )}
-                  {header.column.columnDef.header as any}
-                  {
+        <tbody>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th className={styles[header.id]} key={header.id}>
+                  <div>
+                    {header.column.getCanSort() && (
+                      <Image
+                        src="/icons/sort.png"
+                        alt="Sort icon"
+                        width={100}
+                        height={100}
+                        onClick={header.column.getToggleSortingHandler()}
+                      />
+                    )}
+                    {header.column.columnDef.header as any}
                     {
-                      asc: (
-                        <Image
-                          src="/icons/arrowDown.png"
-                          alt="arrowDown"
-                          width={100}
-                          height={100}
-                        />
-                      ),
-                      desc: (
-                        <Image
-                          src="/icons/arrowUp.png"
-                          alt="arrowUp"
-                          width={100}
-                          height={100}
-                        />
-                      ),
-                      none: <></>,
-                    }[header.column.getIsSorted() || "none"]
-                  }
-                </div>
-              </th>
-            ))}
-          </tr>
-        ))}
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>
-                {flexRender(
-                  cell.column.columnDef.cell as any,
-                  cell.getContext()
-                )}
-              </td>
-            ))}
-          </tr>
-        ))}
+                      {
+                        asc: (
+                          <Image
+                            src="/icons/arrowDown.png"
+                            alt="arrowDown"
+                            width={100}
+                            height={100}
+                          />
+                        ),
+                        desc: (
+                          <Image
+                            src="/icons/arrowUp.png"
+                            alt="arrowUp"
+                            width={100}
+                            height={100}
+                          />
+                        ),
+                        none: <></>,
+                      }[header.column.getIsSorted() || "none"]
+                    }
+                  </div>
+                </th>
+              ))}
+            </tr>
+          ))}
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id}>
+                  {flexRender(
+                    cell.column.columnDef.cell as any,
+                    cell.getContext()
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
       </table>
       <div className={styles.pages}>
         <p>Page</p>
@@ -209,6 +216,45 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
           />
         </button>
       </div>
+    </div>
+  );
+}
+
+type StarsProps = {
+  defaultValue: 0 | 1 | 2 | 3 | 4 | 5;
+};
+
+function Stars({ defaultValue }: StarsProps) {
+  const [value, setValue] = useState<number>(defaultValue);
+
+  return (
+    <div className={styles.starbox}>
+      <Star starValue={5} defaultOn={5 <= value} onClick={setValue} />
+      <Star starValue={4} defaultOn={4 <= value} onClick={setValue} />
+      <Star starValue={3} defaultOn={3 <= value} onClick={setValue} />
+      <Star starValue={2} defaultOn={2 <= value} onClick={setValue} />
+      <Star starValue={1} defaultOn={1 <= value} onClick={setValue} />
+    </div>
+  );
+}
+
+type StarProps = {
+  starValue: number;
+  defaultOn: boolean;
+  onClick: (starValue: number) => void;
+};
+
+function Star({ starValue, defaultOn, onClick }: StarProps) {
+  return (
+    <div className={styles.star} onClick={() => onClick(starValue)}>
+      <Image src="/icons/star_empty.png" alt="star" width={100} height={100} />
+      <Image
+        className={defaultOn ? styles.stardefaultvisible : undefined}
+        src="/icons/star_filled.png"
+        alt="star"
+        width={100}
+        height={100}
+      />
     </div>
   );
 }
