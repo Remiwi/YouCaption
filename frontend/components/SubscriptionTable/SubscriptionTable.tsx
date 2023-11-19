@@ -91,59 +91,61 @@ export default function SubscriptionTable({ videos }: SubscriptionTableProps) {
         />
       </div>
       <table>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th className={styles[header.id]} key={header.id}>
-                <div>
-                  {header.column.getCanSort() && (
-                    <Image
-                      src="/icons/sort.png"
-                      alt="Sort icon"
-                      width={100}
-                      height={100}
-                      onClick={header.column.getToggleSortingHandler()}
-                    />
-                  )}
-                  {header.column.columnDef.header as any}
-                  {
+        <tbody>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th className={styles[header.id]} key={header.id}>
+                  <div>
+                    {header.column.getCanSort() && (
+                      <Image
+                        src="/icons/sort.png"
+                        alt="Sort icon"
+                        width={100}
+                        height={100}
+                        onClick={header.column.getToggleSortingHandler()}
+                      />
+                    )}
+                    {header.column.columnDef.header as any}
                     {
-                      asc: (
-                        <Image
-                          src="/icons/arrowDown.png"
-                          alt="arrowDown"
-                          width={100}
-                          height={100}
-                        />
-                      ),
-                      desc: (
-                        <Image
-                          src="/icons/arrowUp.png"
-                          alt="arrowUp"
-                          width={100}
-                          height={100}
-                        />
-                      ),
-                      none: <></>,
-                    }[header.column.getIsSorted() || "none"]
-                  }
-                </div>
-              </th>
-            ))}
-          </tr>
-        ))}
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>
-                {flexRender(
-                  cell.column.columnDef.cell as any,
-                  cell.getContext()
-                )}
-              </td>
-            ))}
-          </tr>
-        ))}
+                      {
+                        asc: (
+                          <Image
+                            src="/icons/arrowDown.png"
+                            alt="arrowDown"
+                            width={100}
+                            height={100}
+                          />
+                        ),
+                        desc: (
+                          <Image
+                            src="/icons/arrowUp.png"
+                            alt="arrowUp"
+                            width={100}
+                            height={100}
+                          />
+                        ),
+                        none: <></>,
+                      }[header.column.getIsSorted() || "none"]
+                    }
+                  </div>
+                </th>
+              ))}
+            </tr>
+          ))}
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id}>
+                  {flexRender(
+                    cell.column.columnDef.cell as any,
+                    cell.getContext()
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
       </table>
       <div className={styles.pages}>
         <p>Page</p>

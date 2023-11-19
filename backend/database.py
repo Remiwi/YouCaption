@@ -74,7 +74,6 @@ with closing(get_db_conn()) as conn:
             userGID VARCHAR(255) NOT NULL,
             videoID VARCHAR(255) NOT NULL,
             file_path VARCHAR(255) UNIQUE NOT NULL,
-            author VARCHAR(255),
             language VARCHAR(255),
             rating INT,
             FOREIGN KEY (userGID) REFERENCES users(googleID)
