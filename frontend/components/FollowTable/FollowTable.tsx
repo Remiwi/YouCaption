@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -79,6 +79,10 @@ export default function FollowTable({ users }: FollowTableProps) {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  useEffect(() => {
+    setData(users);
+  }, [users]);
 
   return (
     <div className={styles.subtable}>

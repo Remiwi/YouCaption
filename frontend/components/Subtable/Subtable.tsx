@@ -13,6 +13,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import { useQuery } from "@tanstack/react-query";
+import wait from "@/utilities/wait";
 
 import styles from "./Subtable.module.css";
 
@@ -75,7 +77,6 @@ const columns = [
 
 export default function Subtable({ subtitles, page }: SubtableProps) {
   const [pageNumber, setPageNumber] = useState("1");
-  const [data, setData] = useState(subtitles);
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -83,7 +84,7 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
       video: page === "author",
     });
   const table = useReactTable({
-    data,
+    data: subtitles,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
@@ -222,18 +223,25 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
 
 type StarsProps = {
   defaultValue: 0 | 1 | 2 | 3 | 4 | 5;
+  author?: string;
+  video?: string;
+  user?: string;
 };
 
-function Stars({ defaultValue }: StarsProps) {
-  const [value, setValue] = useState<number>(defaultValue);
+function Stars({ defaultValue, author, video, user }: StarsProps) {
+  const ratingQuery = useQuery({
+    queryKey: ["rating", author, video, user],
+    queryFn: () => wait(1000).then(() => 0),
+  });
+  const value = ratingQuery.isSuccess ? ratingQuery.data : defaultValue;
 
   return (
     <div className={styles.starbox}>
-      <Star starValue={5} defaultOn={5 <= value} onClick={setValue} />
-      <Star starValue={4} defaultOn={4 <= value} onClick={setValue} />
-      <Star starValue={3} defaultOn={3 <= value} onClick={setValue} />
-      <Star starValue={2} defaultOn={2 <= value} onClick={setValue} />
-      <Star starValue={1} defaultOn={1 <= value} onClick={setValue} />
+      <Star starValue={5} defaultOn={5 <= value} onClick={() => {}} />
+      <Star starValue={4} defaultOn={4 <= value} onClick={() => {}} />
+      <Star starValue={3} defaultOn={3 <= value} onClick={() => {}} />
+      <Star starValue={2} defaultOn={2 <= value} onClick={() => {}} />
+      <Star starValue={1} defaultOn={1 <= value} onClick={() => {}} />
     </div>
   );
 }

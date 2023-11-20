@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
+import { useQuery } from "@tanstack/react-query";
+import wait from "@/utilities/wait";
 
 import Subtable from "@/components/Subtable/Subtable";
 import DATA from "@/components/Subtable/DummyData";
@@ -16,8 +18,19 @@ export default function Video() {
     return null;
   }
 
-  const [subtitles, setSubtitles] = useState(DATA);
-  const USER_LANG = "english";
+  // get language
+  const langaugeQuery = useQuery({
+    queryKey: ["language"],
+    queryFn: () => wait(1000).then(() => "english"),
+  });
+  const userLang = langaugeQuery.isSuccess ? langaugeQuery.data : "???";
+
+  // get subtitles
+  const subtitlesQuery = useQuery({
+    queryKey: ["subtitles", "video", v],
+    queryFn: () => wait(1000).then(() => DATA),
+  });
+  const subtitles = subtitlesQuery.isSuccess ? subtitlesQuery.data : [];
 
   return (
     <div className={styles.columns}>
@@ -27,7 +40,7 @@ export default function Video() {
         <p>
           Subs in your language:{" "}
           {
-            subtitles.filter((s) => s.language.toLowerCase() === USER_LANG)
+            subtitles.filter((s) => s.language.toLowerCase() === userLang)
               .length
           }
         </p>
@@ -35,14 +48,14 @@ export default function Video() {
           Highest rating for your langauge:{" "}
           {Math.max(
             ...subtitles
-              .filter((s) => s.language.toLowerCase() === USER_LANG)
+              .filter((s) => s.language.toLowerCase() === userLang)
               .map((s) => s.rating)
           )}
         </p>
         <button>Make subs!</button>
       </div>
       <div className={styles.subsColumn}>
-        <Subtable subtitles={DATA} page="video" />
+        <Subtable subtitles={subtitles} page="video" />
       </div>
     </div>
   );

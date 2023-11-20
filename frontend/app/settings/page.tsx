@@ -2,12 +2,31 @@
 
 import styles from "./page.module.css";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import FollowTable from "@/components/FollowTable/FollowTable";
 import FOLLOWDATA from "@/components/FollowTable/DummyData";
 import SubscriptionTable from "@/components/SubscriptionTable/SubscriptionTable";
 import SUBCRIPTIONDATA from "@/components/SubscriptionTable/DummyData";
 
+import wait from "@/utilities/wait";
+
 export default function SettingsPage() {
+  // Get follow list
+  const followQuery = useQuery({
+    queryKey: ["following"],
+    queryFn: () => wait(1000).then(() => FOLLOWDATA),
+  });
+  const following = followQuery.isSuccess ? followQuery.data : [];
+
+  // Get subscription list
+  const subscriptionQuery = useQuery({
+    queryKey: ["subscriptions"],
+    queryFn: () => wait(1000).then(() => SUBCRIPTIONDATA),
+  });
+  const subscriptions = subscriptionQuery.isSuccess
+    ? subscriptionQuery.data
+    : [];
+
   return (
     <div className={styles.container}>
       <h1>Settings</h1>
@@ -24,12 +43,12 @@ export default function SettingsPage() {
             <input type="text" />
           </div>
         </div>
-        <FollowTable users={FOLLOWDATA} />
+        <FollowTable users={following} />
         <FakeForm
           text="Get notified when an author you follow publishes?"
           thirdOption="Only for channels I'm subscribed to"
         />
-        <SubscriptionTable videos={SUBCRIPTIONDATA} />
+        <SubscriptionTable videos={subscriptions} />
         <FakeForm
           text="Get notified when a channel you subscribe to gets a new post?"
           thirdOption="Only from authors I follow"
