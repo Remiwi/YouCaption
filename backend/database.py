@@ -54,16 +54,16 @@ with closing(get_db_conn()) as conn:
         #     END$$;
         # ''')
 
-        # conn.commit()
+        conn.commit()
 
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             googleID VARCHAR(255) PRIMARY KEY,
             username VARCHAR(255) UNIQUE NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
-            language VARCHAR(255) NOT NULL,
-            onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL,
-            onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL
+            language VARCHAR(255) NOT NULL DEFAULT 'EN',
+            onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL DEFAULT FALSE,
+            onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL DEFAULT FALSE
         )
         ''')
         conn.commit()
@@ -104,9 +104,9 @@ with closing(get_db_conn()) as conn:
 
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS sessions (
-            sessionID SERIAL PRIMARY KEY,
+            sessionID UUID PRIMARY KEY,
             userGID VARCHAR(255) NOT NULL,
-            data JSONB,
+            session_data JSONB,
             expiration TIMESTAMP,
             creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )           
