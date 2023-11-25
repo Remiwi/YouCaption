@@ -5,7 +5,8 @@ from typing import Annotated, Optional
 from contextlib import closing
 from database import get_db_conn
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import login
+from routers import login
+
 
 app = FastAPI()
 
@@ -26,8 +27,6 @@ app.include_router(login.router)
 @app.middleware('http')
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
-    query = ...
-    request.username = query.data
     response = await call_next(request)
     print(sessionid)
     if sessionid:
