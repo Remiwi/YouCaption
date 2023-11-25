@@ -7,6 +7,10 @@ declare global {
 }
 
 export default function Gsignin() {
+    if (typeof window !== "undefined") {
+        window.handleCredentialResponse = handleCredentialResponse
+    }
+    
     // Must insert google button script on every component render
     useEffect(() => {
         const script = document.createElement('script')
@@ -15,10 +19,8 @@ export default function Gsignin() {
         script.defer = true
 
         document.body.appendChild(script)
-        window.addEventListener("scroll", handleCredentialResponse)
         return () => {
             document.body.removeChild(script)
-            window.removeEventListener("scroll", handleCredentialResponse)
         }
     })
 
@@ -50,6 +52,23 @@ export default function Gsignin() {
         console.log("Email: " + responsePayload.email);
     }
 
+    async function test_session() {
+        let response = await fetch("http://127.0.0.1:8000/", {
+            method: "GET",
+            mode: "cors",
+            credentials: "include",
+        })
+        console.log(response)
+    }
+
+    async function test_logout() {
+        let response = await fetch("http://127.0.0.1:8000/logout", {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+        })
+        console.log(response)
+    }
     return (
         <>
             <div id="g_id_onload"
@@ -69,6 +88,11 @@ export default function Gsignin() {
                 data-size="large"
                 data-logo_alignment="left">
             </div>
+            <button onClick={test_session}>
+            </button>
+            <button onClick={test_logout}>
+
+            </button>
         </>
     )
 }
