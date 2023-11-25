@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import wait from "@/utilities/wait";
+import Gsignin from "../Auth/Gsignin";
 
 export default function Navbar() {
   const [signedIn, setSignedIn] = useState(false); // TODO: replace with auth check
@@ -36,9 +37,10 @@ export default function Navbar() {
             </button>
           </Link>
         )}
-        <button onClick={() => setSignedIn(!signedIn)}>
+        {/* <button onClick={() => setSignedIn(!signedIn)}>
           {signedIn ? "Sign out" : "Sign in"}
-        </button>
+        </button> */}
+        <Gsignin />
       </div>
     </div>
   );

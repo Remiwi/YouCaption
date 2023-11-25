@@ -10,19 +10,20 @@ import random
 router = APIRouter()
 
 adjectives = [
-    "Adventurous", "Brave", "Clever", "Daring", "Energetic", "Fearless", 
-    "Gracious", "Humorous", "Intelligent", "Joyful", "Kind", "Lively", 
-    "Mystical", "Noble", "Optimistic", "Peaceful", "Quirky", "Radiant", 
+    "Adventurous", "Brave", "Clever", "Daring", "Energetic", "Fearless",
+    "Gracious", "Humorous", "Intelligent", "Joyful", "Kind", "Lively",
+    "Mystical", "Noble", "Optimistic", "Peaceful", "Quirky", "Radiant",
     "Spirited", "Tranquil", "Unique", "Vivacious", "Wise", "Youthful", "Zealous",
     "Agile", "Bold", "Creative", "Determined", "Elegant"
 ]
 
 nouns = [
-    "Panther", "Eagle", "Wizard", "Knight", "Dragon", "Phoenix", "Unicorn", 
-    "Voyager", "Titan", "Ranger", "Samurai", "Oracle", "Ninja", "Maverick", 
-    "Lynx", "Gladiator", "Falcon", "Explorer", "Dynamo", "Crusader", "Captain", 
+    "Panther", "Eagle", "Wizard", "Knight", "Dragon", "Phoenix", "Unicorn",
+    "Voyager", "Titan", "Ranger", "Samurai", "Oracle", "Ninja", "Maverick",
+    "Lynx", "Gladiator", "Falcon", "Explorer", "Dynamo", "Crusader", "Captain",
     "Baron", "Astro", "Archer", "Ace", "Warrior", "Voyager", "Titan", "Sage", "Rebel"
 ]
+
 
 def gen_username():
     adj = random.choice(adjectives)
@@ -32,16 +33,16 @@ def gen_username():
     return username
 
 
-
 @router.post("/login")
 async def validate(credential: Annotated[str, Form()], request: Request, response: Response):
+    print("User logging in")
     try:
         userData = verify(credential)
         gid = userData["sub"]
         email = userData["email"]
         username = gen_username()
         with closing(get_db_conn()) as conn:
-             with closing(conn.cursor()) as cursor:
+            with closing(conn.cursor()) as cursor:
                 # create the user account if it does not exist already
                 query = "SELECT EXISTS (SELECT 1 FROM users WHERE googleID = %s)"
                 cursor.execute(query, (gid,))
@@ -59,7 +60,7 @@ async def validate(credential: Annotated[str, Form()], request: Request, respons
                     """
                     cursor.execute(query, (gid, username, email))
                 conn.commit()
-        
+
         # creating a new session for the user
         sessionid = uuid.uuid4()
         current_date = datetime.now()
@@ -74,12 +75,14 @@ async def validate(credential: Annotated[str, Form()], request: Request, respons
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
                 # destroying innactive sessions
-                cursor.execute("DELETE FROM sessions where userGID = %s", (gid, ))
+                cursor.execute(
+                    "DELETE FROM sessions where userGID = %s", (gid, ))
                 cursor.execute(insert_query, values)
                 conn.commit()
         print("userdata: ", userData)
-        response.set_cookie(key = "sessionid", value = sessionid, samesite = "none", secure = "true")
-        return(userData)
+        response.set_cookie(key="sessionid", value=sessionid,
+                            samesite="none", secure="true")
+        return (userData)
     except Exception as e:
         print(e)
         return {"message": "error"}
@@ -93,13 +96,15 @@ async def validate(credential: Annotated[str, Form()], request: Request, respons
     #     return JSONResponse('Failed to verify double submit cookie.', status_code=status.HTTP_400_BAD_REQUEST)
     # print(credential)
 
+
 @router.post("/logout")
 async def logout(request: Request, response: Response):
     sessionid = request.cookies.get("sessionid")
     with closing(get_db_conn()) as conn:
-            with closing(conn.cursor()) as cursor:
-                cursor.execute("DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
-                conn.commit()
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(
+                "DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
+            conn.commit()
     response.delete_cookie("sessionid")
     response.status_code = status.HTTP_200_OK
     return response

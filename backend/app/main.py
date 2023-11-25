@@ -22,9 +22,12 @@ app.add_middleware(
 
 app.include_router(login.router)
 
+
 @app.middleware('http')
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
+    query = ...
+    request.username = query.data
     response = await call_next(request)
     print(sessionid)
     if sessionid:
@@ -36,12 +39,13 @@ async def check_credentials(request: Request, call_next):
                 sid = cursor.fetchone()
                 if not sid:
                     print("here")
-                    response.delete_cookie(key = "sessionid")
+                    response.delete_cookie(key="sessionid")
                 elif sid[3] <= datetime.now():
                     print("here2")
                     print(sid[4], datetime.now())
-                    response.delete_cookie(key = "sessionid")
-                    cursor.execute("DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
+                    response.delete_cookie(key="sessionid")
+                    cursor.execute(
+                        "DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
                 else:
                     query = """
                         UPDATE sessions
@@ -55,7 +59,8 @@ async def check_credentials(request: Request, call_next):
                     cursor.execute(query, (new_date, sessionid))
                 conn.commit()
     return response
-            
+
+
 @app.get("/")
 async def root():
     with closing(get_db_conn()) as conn:
@@ -65,7 +70,8 @@ async def root():
             cursor.execute("SELECT * FROM sessions")
             sessions = cursor.fetchall()
             return {"users": users, "sessions": sessions}
-        
+
+
 @app.get("/vidPgCapData/{videoID}")
 async def get_VCapDataList(videoID: str):
     with closing(get_db_conn()) as conn:
@@ -90,5 +96,3 @@ async def get_PCapDataList(userGID: str):
 
             capList = [cap[0] for cap in caps]
             return (capList)
-
-
