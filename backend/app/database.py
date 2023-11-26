@@ -54,7 +54,7 @@ with closing(get_db_conn()) as conn:
         #     END$$;
         # ''')
 
-        conn.commit()
+        # conn.commit()
 
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
