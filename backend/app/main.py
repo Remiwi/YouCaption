@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 from contextlib import closing
 from database import get_db_conn
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import login, isLoggedIn
+from routers import login, isLoggedIn
 
 app = FastAPI()
 
