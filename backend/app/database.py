@@ -7,7 +7,7 @@ def get_db_conn():
     # Load database configuration from config.ini
     try:
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('../config.ini')
 
         # Get the database connection details from the config file
         db_host = config['database']['host']
@@ -43,7 +43,7 @@ with closing(get_db_conn()) as conn:
 
         # cursor.execute('''
         #     DO $$
-        #     DECLARE 
+        #     DECLARE
         #         r record;
         #     BEGIN
         #         FOR r IN SELECT quote_ident(tablename) AS tablename, quote_ident(schemaname) AS schemaname FROM pg_tables WHERE schemaname = 'public'
