@@ -27,8 +27,6 @@ app.include_router(isLoggedIn.router)
 @app.middleware('http')
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
-    query = ...
-    request.username = query.data
     response = await call_next(request)
     print(sessionid)
     if sessionid:
