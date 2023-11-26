@@ -99,7 +99,9 @@ async def validate(credential: Annotated[str, Form()], request: Request, respons
 
 @router.post("/logout")
 async def logout(request: Request, response: Response):
+    print("User Logging Out")
     sessionid = request.cookies.get("sessionid")
+    print("Destroying session with sessionID: ", sessionid)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.execute(
