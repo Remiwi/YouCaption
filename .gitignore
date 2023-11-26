@@ -3,7 +3,7 @@ backend/env/
 
 # db connection config files
 backend/config.ini
-
+backend/app/config.ini
 # pycache
 backend/__pycache__
 
