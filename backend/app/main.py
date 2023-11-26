@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 from contextlib import closing
 from database import get_db_conn
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import login
+from .routers import login, isLoggedIn
 
 app = FastAPI()
 
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(login.router)
+app.include_router(isLoggedIn.router)
 
 
 @app.middleware('http')
@@ -96,3 +97,8 @@ async def get_PCapDataList(userGID: str):
 
             capList = [cap[0] for cap in caps]
             return (capList)
+
+
+@app.get("/testt")
+async def testt():
+    return {"message": "testt"}

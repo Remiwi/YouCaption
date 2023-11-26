@@ -9,12 +9,13 @@ import wait from "@/utilities/wait";
 import Gsignin from "../Auth/Gsignin";
 
 export default function Navbar() {
-  const [signedIn, setSignedIn] = useState(false); // TODO: replace with auth check
   const usernameQuery = useQuery({
     queryKey: ["username"],
-    queryFn: () => wait(1000).then(() => "usernameSmileyface"),
+    queryFn: () =>
+      fetch("http://localhost:8000/getUsername").then((res) => res.json()),
   });
-  const username = usernameQuery.isLoading ? "..." : usernameQuery.data;
+  const signedIn = usernameQuery.isSuccess && usernameQuery.data.signedIn;
+  const username = signedIn ? usernameQuery.data.username : "...";
 
   return (
     <div className={styles.navbar}>
