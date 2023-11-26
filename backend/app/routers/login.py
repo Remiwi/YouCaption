@@ -107,6 +107,6 @@ async def logout(request: Request, response: Response):
             cursor.execute(
                 "DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
             conn.commit()
-    response.delete_cookie("sessionid")
+    response.delete_cookie("sessionid", samesite="none", secure="true")
     response.status_code = status.HTTP_200_OK
     return response
