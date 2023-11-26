@@ -8,3 +8,4 @@ backend/app/config.ini
 backend/__pycache__
 
 backend/app/__pycache__
+backend/routers/__pycache__
