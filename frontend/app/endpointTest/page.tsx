@@ -39,6 +39,15 @@ export default function Test() {
                 > Follow
             </button>
             <button
+                onClick={async () =>  console.log(await (await fetch("http://127.0.0.1:8000/unfollow/UniqueBaron8851", {
+                    method: "POST",
+                    mode: "cors",
+                    credentials: "include",
+                })).json())
+                }
+                > Unfollow
+            </button>
+            <button
                 onClick={async () =>  console.log(await (await fetch("http://127.0.0.1:8000/followingList", {
                     mode: "cors",
                     credentials: "include",

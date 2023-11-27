@@ -91,6 +91,23 @@ async def follow(request: Request, usernameToFollow: str):
             conn.commit()
     return {"message": "follow success"}
 
+@router.post("/unfollow/{usernameToUnfollow}")
+async def unfollow(request: Request, usernameToUnfollow:str):
+    print(request.state.username, "following", usernameToUnfollow)
+    getUnfollowingGID = "SELECT googleID FROM users WHERE username = %s"
+    removeFollowing = "DELETE FROM userFollows WHERE followerGID = %s AND followingGID = %s"
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getUnfollowingGID, (usernameToUnfollow, ))
+            UnfollowingGID = cursor.fetchone()
+            if not UnfollowingGID:
+                raise HTTPException(
+                    status_code=404,
+                    detail="attempting to unfollow a user that does not exist"
+                )
+            cursor.execute(removeFollowing, (request.state.userGID, UnfollowingGID[0]))
+            conn.commit()
+
     
 
 
