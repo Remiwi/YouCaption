@@ -1,7 +1,24 @@
 "use client";
 import Gsignin from "@/components/Auth/Gsignin"
+import { useState } from "react";
 
 export default function Test() {
+
+    const [username, setUsername] = useState('');
+
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault(); // Prevents the default form submit action
+
+        const url = `http://127.0.0.1:8000/updateUsername/${username}`;
+        console.log(await (await fetch(url, {
+            method: "POST",
+            mode: "cors",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            }
+        })).json());
+    };
     return (
         <>
             <Gsignin />
@@ -29,6 +46,15 @@ export default function Test() {
                 })}
                 > Get Username
             </button>
+            <form onSubmit={handleSubmit}>
+                Update Username<br />
+                <input 
+                    type="text" 
+                    value={username} 
+                    onChange={e => setUsername(e.target.value)} 
+                />
+                <input type="submit" />
+            </form>
             <button
                 onClick={async () =>  console.log(await (await fetch("http://127.0.0.1:8000/follow/UniqueBaron8851", {
                     method: "POST",

@@ -28,7 +28,7 @@ app.include_router(isLoggedIn.router)
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
     response = await call_next(request)
-    print(sessionid)
+    #print(sessionid)
     if sessionid:
         # query for finding the session id in the id table
         query = "SELECT * FROM sessions WHERE sessionID = %s"
@@ -54,7 +54,6 @@ async def check_credentials(request: Request, call_next):
                     current_date = datetime.now()
                     one_week = timedelta(weeks=1)
                     new_date = current_date + one_week
-                    print(new_date)
                     cursor.execute(query, (new_date, sessionid))
                 conn.commit()
     return response

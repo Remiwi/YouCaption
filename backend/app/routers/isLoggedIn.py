@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import json
+import logging
 import uuid
 from fastapi import APIRouter, Form, Request, Response, status, Depends, HTTPException
 from typing import Annotated
@@ -49,6 +50,23 @@ async def getUsername(request: Request):
     print("Getting Username from simple")
     print(request.state.username)
     return(request.state.username)
+
+@router.post("/updateUsername/{newUsername}")
+async def updateUsername(request: Request, newUsername: str):
+    print("Updating username from", request.state.username, "to", newUsername)
+    try:
+        updateUsername = "UPDATE users SET username = %s WHERE googleID = %s"
+        with closing(get_db_conn()) as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(updateUsername, (newUsername, request.state.userGID))
+                conn.commit()
+    except Exception as e:
+        logging.error(f"Error updating username: {e}")
+        raise HTTPException(
+            status_code=409,
+            detail="username taken"
+        )
+
 
 @router.get("/followingList")
 async def getFollowingList(request: Request):
@@ -115,7 +133,7 @@ async def unfollow(request: Request, usernameToUnfollow:str):
 async def getUsername(request: Request):
     print("Getting Username")
     sessionid = request.cookies.get("sessionid")
-    print("User sessionID: ", sessionid)
+    #print("User sessionID: ", sessionid)
     if sessionid:
         query = "SELECT username FROM sessions JOIN users ON sessions.userGID = users.googleID WHERE sessionID = %s"
         with closing(get_db_conn()) as conn:
