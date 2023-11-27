@@ -1,12 +1,68 @@
 from datetime import datetime, timedelta
 import json
 import uuid
-from fastapi import APIRouter, Form, Request, Response, status
+from fastapi import APIRouter, Form, Request, Response, status, Depends
 from typing import Annotated
 from contextlib import closing
 from dependencies import get_db_conn, verify
 
-router = APIRouter()
+
+
+async def getUserGID(request: Request):
+    sessionid = request.cookies.get("sessionid")
+    if sessionid:
+        query = "SELECT userGID FROM sessions WHERE sessionID = %s"
+        with closing(get_db_conn()) as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(query, (sessionid, ))
+                userGID = cursor.fetchone()
+                if userGID:
+                    request.state.userGID = userGID[0]
+                print(userGID)
+                query = "SELECT username FROM users WHERE googleID = %s"
+                cursor.execute(query, (request.state.userGID, ))
+                username = cursor.fetchone()
+                if username:
+                    request.state.username = username[0]
+        print("userGID: ", request.state.userGID)
+        print("username: ", request.state.username)
+    return request
+
+router = APIRouter(dependencies=[Depends(getUserGID)])
+
+@router.get("/currentLanguage")
+async def getCurrentLanguage(request: Request):
+    print("Getting Current Language")
+    query = "SELECT language FROM users WHERE username = %s"
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(query, (request.state.username,))
+            curr_language = cursor.fetchone()
+            if curr_language:
+                print(curr_language)
+                return curr_language[0]
+            
+@router.get("/username")
+async def getUsername(request: Request):
+    print("Getting Username from simple")
+    print(request.state.username)
+    return(request.state.username)
+
+@router.get("/follow/{usernameToFollow}")
+async def follow(request: Request, usernameToFollow: str):
+    print(request.state.username, "following", usernameToFollow)
+    getFollowingGID = "SELECT googleID FROM users WHERE username = %s"
+    addFollowing = "INSERT INTO userFollows (followerGID, followingGID) VALUES (%s, %s)"
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getFollowingGID, (usernameToFollow,))
+            FollowingGID = cursor.fetchone()
+            cursor.execute(addFollowing, (request.state.userGID, FollowingGID[0]))
+            conn.commit()
+    return {"message": "follow success"}
+
+    
+
 
 @router.get("/getUsername")
 async def getUsername(request: Request):
