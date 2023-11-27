@@ -68,7 +68,9 @@ async def root():
             users = cursor.fetchall()
             cursor.execute("SELECT * FROM sessions")
             sessions = cursor.fetchall()
-            return {"users": users, "sessions": sessions}
+            cursor.execute("SELECT * FROM userFollows")
+            userFollows = cursor.fetchall()
+            return {"users": users, "sessions": sessions, "Follow Table": userFollows}
 
 
 @app.get("/vidPgCapData/{videoID}")
