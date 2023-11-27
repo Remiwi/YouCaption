@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import json
 import uuid
-from fastapi import APIRouter, Form, Request, Response, status, Depends
+from fastapi import APIRouter, Form, Request, Response, status, Depends, HTTPException
 from typing import Annotated
 from contextlib import closing
 from dependencies import get_db_conn, verify
@@ -26,6 +26,8 @@ async def getUserGID(request: Request):
                     request.state.username = username[0]
         print("userGID: ", request.state.userGID)
         print("username: ", request.state.username)
+    else:
+        print("NO SESSION ID")
     return request
 
 router = APIRouter(dependencies=[Depends(getUserGID)])
@@ -48,15 +50,43 @@ async def getUsername(request: Request):
     print(request.state.username)
     return(request.state.username)
 
-@router.get("/follow/{usernameToFollow}")
+@router.get("/followingList")
+async def getFollowingList(request: Request):
+    print("Getting Following List of ", request.state.username)
+    getFollowing = """
+        SELECT username 
+        FROM userFollows 
+        JOIN users ON followingGID = googleID 
+        WHERE followerGID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getFollowing, (request.state.userGID, ))
+            FollowingList = cursor.fetchall()
+            print(FollowingList)
+
+    return {"Following List": FollowingList}
+
+    
+@router.post("/follow/{usernameToFollow}")
 async def follow(request: Request, usernameToFollow: str):
     print(request.state.username, "following", usernameToFollow)
     getFollowingGID = "SELECT googleID FROM users WHERE username = %s"
-    addFollowing = "INSERT INTO userFollows (followerGID, followingGID) VALUES (%s, %s)"
+    addFollowing = "INSERT INTO userFollows (followerGID, followingGID) VALUES (%s, %s) ON CONFLICT DO NOTHING"
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.execute(getFollowingGID, (usernameToFollow,))
             FollowingGID = cursor.fetchone()
+            if not FollowingGID:
+                raise HTTPException(
+                    status_code=404,
+                    detail="attempting to follow a user that does not exist"
+                )
+            elif FollowingGID[0] == request.state.userGID:
+                raise HTTPException(
+                    status_code=403,
+                    detail="attempting to follow self"
+                )
             cursor.execute(addFollowing, (request.state.userGID, FollowingGID[0]))
             conn.commit()
     return {"message": "follow success"}
