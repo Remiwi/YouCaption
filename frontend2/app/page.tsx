@@ -1,95 +1,76 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./page.module.css";
+import extractVideoID from "@/utilities/extractVideoID";
 
 export default function Home() {
+  const router = useRouter();
+  const input = useRef<string>("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    input.current = e.target.value;
+  };
+
+  const handleSubmit = () => {
+    if (input.current === "") return;
+    router.push(`/video?v=${extractVideoID(input.current)}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
+    <div className={styles.page}>
+      <div className={styles.search}>
+        <h1>What will you caption?</h1>
+        <div className={styles.searchBar}>
+          <input
+            type="text"
+            className="text-line"
+            placeholder="www.youtube.com/watch?v=dQw4w9WgXcQ"
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+          />
+          <button onClick={handleSubmit}>
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
+              src="/icons/search.png"
+              alt="Search icon"
               width={100}
-              height={24}
-              priority
+              height={100}
             />
-          </a>
+          </button>
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <p className={styles.context}>
+        Use <Link href="/video?v=jK6W_nQjZyg">this link</Link> to quickly open a
+        video.
+        <br />
+        <br />
+        Big paragraph of context stuff below that roughly explains how the
+        website works and what to use it for and all that junk idk that's what
+        they do on the website im referencing and it looks pretty cool so i
+        think we should consider that as an option im just filling text now lol
+        i should rly learn how to use those lorem ipsum tools
+        <br />
+        <br />
+        Big paragraph of context stuff below that roughly explains how the
+        website works and what to use it for and all that junk idk that's what
+        they do on the website im referencing and it looks pretty cool so i
+        think we should consider that as an option im just filling text now lol
+        i should rly learn how to use those lorem ipsum tools
+        <br />
+        <br />
+        Big paragraph of context stuff below that roughly explains how the
+        website works and what to use it for and all that junk idk that's what
+        they do on the website im referencing and it looks pretty cool
+      </p>
+    </div>
+  );
 }
