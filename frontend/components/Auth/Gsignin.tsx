@@ -31,7 +31,8 @@ export default function Gsignin() {
       credentials: "include",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "https://play.google.com",
+        "Cross-Origin-Resource-Policy": "cross-origin",
       },
       body: "credential=" + credential,
     });
