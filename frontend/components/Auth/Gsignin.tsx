@@ -59,7 +59,6 @@ export default function Gsignin() {
                 data-client_id="258135953958-mgpvgvkajfc6gv30k6ldbih4v08deq45.apps.googleusercontent.com"
                 data-context="signin"
                 data-ux_mode="popup"
-                data-login_uri="http://localhost:3000"
                 data-callback = "handleCredentialResponse"
                 data-auto_prompt="false">
             </div>
