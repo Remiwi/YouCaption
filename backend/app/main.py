@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 from contextlib import closing
 from database import get_db_conn
 from fastapi.middleware.cors import CORSMiddleware
-from routers import login, isLoggedIn
+from routers import login, isLoggedIn, editor
 
 app = FastAPI()
 
@@ -22,13 +22,14 @@ app.add_middleware(
 
 app.include_router(login.router)
 app.include_router(isLoggedIn.router)
+app.include_router(editor.router)
 
 
 @app.middleware('http')
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
     response = await call_next(request)
-    print(sessionid)
+    #print(sessionid)
     if sessionid:
         # query for finding the session id in the id table
         query = "SELECT * FROM sessions WHERE sessionID = %s"
@@ -54,7 +55,6 @@ async def check_credentials(request: Request, call_next):
                     current_date = datetime.now()
                     one_week = timedelta(weeks=1)
                     new_date = current_date + one_week
-                    print(new_date)
                     cursor.execute(query, (new_date, sessionid))
                 conn.commit()
     return response
@@ -68,7 +68,9 @@ async def root():
             users = cursor.fetchall()
             cursor.execute("SELECT * FROM sessions")
             sessions = cursor.fetchall()
-            return {"users": users, "sessions": sessions}
+            cursor.execute("SELECT * FROM userFollows")
+            userFollows = cursor.fetchall()
+            return {"users": users, "sessions": sessions, "Follow Table": userFollows}
 
 
 @app.get("/vidPgCapData/{videoID}")
