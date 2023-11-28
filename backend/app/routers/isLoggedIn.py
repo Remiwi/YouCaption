@@ -126,7 +126,49 @@ async def unfollow(request: Request, usernameToUnfollow:str):
             cursor.execute(removeFollowing, (request.state.userGID, UnfollowingGID[0]))
             conn.commit()
 
+@router.post("/subscribe/{videoID}")
+async def subscribeToVideo(request: Request, videoID: str):
+    print("Subscribing to video with videoID:", videoID)
+    subscribe = """
+        INSERT INTO userSavedVideos (userGID, videoID) 
+        VALUES (%s, %s)
+        ON CONFLICT
+            DO NOTHING
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(subscribe, (request.state.userGID, videoID))
+            conn.commit()
+    return {"message": "Subscription Success"}
     
+@router.post("/unsubscribe/{videoID}")
+async def unsubscribeToVideo(request: Request, videoID: str):
+    print("Unsubscribing to video with videoID:", videoID)
+    unsubscribe = """
+        DELETE FROM userSavedVideos WHERE
+        userGID = %s AND videoID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(unsubscribe, (request.state.userGID, videoID))
+            conn.commit()
+    return {"message": "Unsubscription Success"}
+
+@router.get("/subscriptionList")
+async def getSubscriptionList(request: Request):
+    print("Getting subscription list: ")
+    getSubList = """
+        SELECT videoID FROM userSavedVideos
+        WHERE userGID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getSubList, (request.state.userGID, ))
+            subList = cursor.fetchall()
+    print(subList)
+    return {"SubList":subList, "message": "Get Subcription List Success"}
+
+
 
 
 @router.get("/getUsername")
