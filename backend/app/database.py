@@ -65,7 +65,6 @@ with closing(get_db_conn()) as conn:
             username VARCHAR(255) UNIQUE NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             language VARCHAR(255) NOT NULL DEFAULT 'EN',
-            followerCount INT,
             onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL DEFAULT FALSE,
             onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL DEFAULT FALSE
         )
@@ -79,8 +78,7 @@ with closing(get_db_conn()) as conn:
             videoID VARCHAR(255) NOT NULL,
             file_path VARCHAR(255) UNIQUE NOT NULL,
             language VARCHAR(255),
-            avgRating INT,
-            userRating INT,
+            rating INT,
             FOREIGN KEY (userGID) REFERENCES users(googleID)
         )
         ''')
