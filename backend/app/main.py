@@ -84,7 +84,7 @@ async def root():
 async def get_VCapDataList(videoID: str):
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT author, language, rating, file_path FROM captions WHERE videoID = %s"
+            query = "SELECT author, language, avgRating, userRating, file_path FROM captions WHERE videoID = %s"
 
             cursor.execute(query, (videoID,))
             caps = cursor.fetchall()
@@ -93,17 +93,30 @@ async def get_VCapDataList(videoID: str):
             return (capList)
 
 
-@app.get("/pfPgCapData/{videoID}")
-async def get_PCapDataList(userGID: str):
+@app.get("/pfPgCapData/{username}")
+async def get_PCapDataList(username: str):
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT author, language, rating, file_path FROM captions WHERE userGID = %s"
+            query = "SELECT videoID, language, avgRating, userRating, file_path FROM captions WHERE username = %s"
 
-            cursor.execute(query, (userGID,))
+            cursor.execute(query, (username,))
             caps = cursor.fetchall()
 
             capList = [cap[0] for cap in caps]
             return (capList)
+
+
+@app.get("/userFollowerCount/{userGID}")
+async def get_uFollowerCount(userGID: str):
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            query = "SELECT followerCount FROM users WHERE googleID = %s"
+
+            cursor.execute(query, (userGID,))
+            numFollowers = cursor.fetchall()
+
+            return (numFollowers)
+
 
 
 @app.get("/testt")
