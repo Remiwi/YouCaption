@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 declare global {
   interface Window {
     handleCredentialResponse?: any;
@@ -7,6 +8,8 @@ declare global {
 }
 
 export default function Gsignin() {
+  const queryClient = useQueryClient();
+
   if (typeof window !== "undefined") {
     window.handleCredentialResponse = handleCredentialResponse;
   }
@@ -52,7 +55,9 @@ export default function Gsignin() {
     console.log("Image URL: " + responsePayload.picture);
     console.log("Email: " + responsePayload.email);
 
-    window.location.reload();
+    // window.location.reload();
+    queryClient.setQueryData(["username"], { signedIn: true, username: "..." });
+    queryClient.invalidateQueries({ queryKey: ["username"] });
   }
 
   return (
