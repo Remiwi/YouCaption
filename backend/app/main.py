@@ -72,19 +72,23 @@ async def root():
             userFollows = cursor.fetchall()
             cursor.execute("SELECT * FROM userSavedVideos")
             subscriptions = cursor.fetchall()
+            cursor.execute("SELECT * FROM ratings")
+            ratings = cursor.fetchall()
             return {
                 "users": users, 
                 "sessions": sessions, 
                 "Follow Table": userFollows,
-                "Subscription Table": subscriptions  
+                "Subscription Table": subscriptions,  
+                "ratings": ratings
             }
 
 
 @app.get("/vidPgCapData/{videoID}")
 async def get_VCapDataList(videoID: str):
+    print("Getting Captions for videoID", videoID)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT author, language, rating, file_path FROM captions WHERE videoID = %s"
+            query = "SELECT id, userGID, rating, language FROM captions WHERE videoID = %s"
 
             cursor.execute(query, (videoID,))
             caps = cursor.fetchall()
@@ -93,13 +97,17 @@ async def get_VCapDataList(videoID: str):
             return (capList)
 
 
-@app.get("/pfPgCapData/{videoID}")
-async def get_PCapDataList(userGID: str):
+@app.get("/pfPgCapData/{username}")
+async def get_PCapDataList(username: str):
+    print("Getting Captions for user", username)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT author, language, rating, file_path FROM captions WHERE userGID = %s"
-
-            cursor.execute(query, (userGID,))
+            query = """SELECT c.id, c.userGID, c.language, c.rating 
+                FROM captions AS c
+                JOIN users AS u ON c.userGID = u.googleID
+                WHERE u.username = %s
+            """
+            cursor.execute(query, (username,))
             caps = cursor.fetchall()
 
             capList = [cap[0] for cap in caps]
