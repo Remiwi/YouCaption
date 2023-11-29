@@ -55,6 +55,9 @@ with closing(get_db_conn()) as conn:
         # ''')
 
         # conn.commit()
+        # cursor.execute('''
+        #     DROP TABLE ratings                
+        # ''')
 
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -79,6 +82,18 @@ with closing(get_db_conn()) as conn:
             FOREIGN KEY (userGID) REFERENCES users(googleID)
         )
         ''')
+        conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ratings (
+            captionID INTEGER NOT NULL,
+            userGID VARCHAR(255) NOT NULL,
+            rating INT NOT NULL DEFAULT 0,
+            PRIMARY KEY (captionID, userGID),
+            FOREIGN KEY (captionID) REFERENCES captions(id)
+        )
+        ''')
+
         conn.commit()
 
         cursor.execute('''
