@@ -114,15 +114,20 @@ async def get_PCapDataList(username: str):
             return (capList)
 
 
-@app.get("/userFollowerCount/{userGID}")
-async def get_uFollowerCount(userGID: str):
+@app.get("/userFollowerCount/{username}")
+async def get_uFollowerCount(username: str):
+    print("Getting following count of user:", username)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT followerCount FROM users WHERE googleID = %s"
-            
-            cursor.execute(query, (userGID,))
-            numFollowers = cursor.fetchall()
-
+            query = """
+                SELECT COUNT(followerGID)
+                FROM userFollows as uf
+                JOIN users As u ON uf.followingGID = u.googleID
+                WHERE u.username = %s
+            """
+            cursor.execute(query, (username,))
+            numFollowers = cursor.fetchone()
+            print("Follow Count is:", numFollowers[0])
             return (numFollowers)
 
 
