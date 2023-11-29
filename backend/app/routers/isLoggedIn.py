@@ -9,7 +9,6 @@ from contextlib import closing
 from dependencies import get_db_conn, verify
 
 
-
 async def getUserGID(request: Request):
     sessionid = request.cookies.get("sessionid")
     if sessionid:
@@ -36,21 +35,24 @@ router = APIRouter(dependencies=[Depends(getUserGID)])
 
 
 @router.post("/updateLanguage/{newLanguage}")
-async def updateLanguage(request:Request, newLanguage: str):
+async def updateLanguage(request: Request, newLanguage: str):
     print("Updating Language to:", newLanguage)
     try:
         changeLanguage = """
                 UPDATE users
                 SET language = %s
                 WHERE googleID = %s
-            """        
+            """
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
-                cursor.execute(changeLanguage, (newLanguage, request.state.userGID))
+                cursor.execute(
+                    changeLanguage, (newLanguage, request.state.userGID))
                 conn.commit()
         return {"message": "Update Language Success"}
     except Exception as e:
         logging.error(f"Error updating username: {e}")
+
+
 @router.get("/currentLanguage")
 async def getCurrentLanguage(request: Request):
     print("Getting Current Language")
@@ -62,11 +64,14 @@ async def getCurrentLanguage(request: Request):
             if curr_language:
                 print(curr_language)
                 return curr_language[0]
-            
+
+
 @router.get("/getUsername")
 async def getUsername(request: Request):
     print(request.state.username)
     return {"username": request.state.username, "signedIn": True}
+
+
 @router.post("/updateUsername/{newUsername}")
 async def updateUsername(request: Request, newUsername: str):
     print("Updating username from", request.state.username, "to", newUsername)
@@ -74,7 +79,8 @@ async def updateUsername(request: Request, newUsername: str):
         updateUsername = "UPDATE users SET username = %s WHERE googleID = %s"
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
-                cursor.execute(updateUsername, (newUsername, request.state.userGID))
+                cursor.execute(
+                    updateUsername, (newUsername, request.state.userGID))
                 conn.commit()
     except Exception as e:
         logging.error(f"Error updating username: {e}")
@@ -82,6 +88,7 @@ async def updateUsername(request: Request, newUsername: str):
             status_code=409,
             detail="username taken"
         )
+
 
 @router.post("/follow/{usernameToFollow}")
 async def follow(request: Request, usernameToFollow: str):
@@ -102,11 +109,14 @@ async def follow(request: Request, usernameToFollow: str):
                     status_code=403,
                     detail="attempting to follow self"
                 )
-            cursor.execute(addFollowing, (request.state.userGID, FollowingGID[0]))
+            cursor.execute(
+                addFollowing, (request.state.userGID, FollowingGID[0]))
             conn.commit()
     return {"message": "follow success"}
+
+
 @router.post("/unfollow/{usernameToUnfollow}")
-async def unfollow(request: Request, usernameToUnfollow:str):
+async def unfollow(request: Request, usernameToUnfollow: str):
     print(request.state.username, "following", usernameToUnfollow)
     getUnfollowingGID = "SELECT googleID FROM users WHERE username = %s"
     removeFollowing = "DELETE FROM userFollows WHERE followerGID = %s AND followingGID = %s"
@@ -119,8 +129,11 @@ async def unfollow(request: Request, usernameToUnfollow:str):
                     status_code=404,
                     detail="attempting to unfollow a user that does not exist"
                 )
-            cursor.execute(removeFollowing, (request.state.userGID, UnfollowingGID[0]))
+            cursor.execute(removeFollowing,
+                           (request.state.userGID, UnfollowingGID[0]))
             conn.commit()
+
+
 @router.get("/followingList")
 async def getFollowingList(request: Request):
     print("Getting Following List of ", request.state.username)
@@ -137,7 +150,8 @@ async def getFollowingList(request: Request):
             print(FollowingList)
 
     return {"Following List": FollowingList}
-    
+
+
 @router.post("/subscribe/{videoID}")
 async def subscribeToVideo(request: Request, videoID: str):
     print("Subscribing to video with videoID:", videoID)
@@ -151,7 +165,9 @@ async def subscribeToVideo(request: Request, videoID: str):
         with closing(conn.cursor()) as cursor:
             cursor.execute(subscribe, (request.state.userGID, videoID))
             conn.commit()
-    return {"message": "Subscription Success"}   
+    return {"message": "Subscription Success"}
+
+
 @router.post("/unsubscribe/{videoID}")
 async def unsubscribeToVideo(request: Request, videoID: str):
     print("Unsubscribing to video with videoID:", videoID)
@@ -164,6 +180,8 @@ async def unsubscribeToVideo(request: Request, videoID: str):
             cursor.execute(unsubscribe, (request.state.userGID, videoID))
             conn.commit()
     return {"message": "Unsubscription Success"}
+
+
 @router.get("/subscriptionList")
 async def getSubscriptionList(request: Request):
     print("Getting subscription list: ")
@@ -176,10 +194,11 @@ async def getSubscriptionList(request: Request):
             cursor.execute(getSubList, (request.state.userGID, ))
             subList = cursor.fetchall()
     print(subList)
-    return {"SubList":subList, "message": "Get Subcription List Success"}
+    return {"SubList": subList, "message": "Get Subcription List Success"}
+
 
 @router.post("/createUserRating/{captionID}/{rating}")
-async def createUserRating(request:Request, captionID: int,rating: int):
+async def createUserRating(request: Request, captionID: int, rating: int):
     try:
         print("Creating rating of", rating, "for caption", captionID)
         createRating = """
@@ -190,15 +209,18 @@ async def createUserRating(request:Request, captionID: int,rating: int):
         """
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
-                cursor.execute(createRating, (captionID, request.state.userGID, rating))
+                cursor.execute(
+                    createRating, (captionID, request.state.userGID, rating))
                 conn.commit()
         return {"message": "rating created successfully"}
     except Exception as e:
         print(e)
         return HTTPException(status_code=400, detail="Rating Creation Failed")
 # needs testing
+
+
 @router.get("/userRating/{username}/{captionID}")
-async def getUserRating(request:Request, username: str, captionID: int):
+async def getUserRating(request: Request, username: str, captionID: int):
     try:
         print("Getting", username, "rating for captionID", captionID)
         getRating = """
@@ -215,9 +237,10 @@ async def getUserRating(request:Request, username: str, captionID: int):
     except Exception as e:
         print(e)
         return HTTPException(status_code=400, detail="Get User Rating Failed")
-    
+
+
 @router.post("/onlyNotifyOnLangMatchFollowingTrue")
-async def notifyOnLangMatch(request:Request):
+async def notifyOnLangMatch(request: Request):
     print("Notifying on Lang Match Following True")
     updateLangMatch = """
         UPDATE users
@@ -229,8 +252,10 @@ async def notifyOnLangMatch(request:Request):
             cursor.execute(updateLangMatch, (request.state.userGID,))
             conn.commit()
     return {"message": "Only notifying following on language match set to TRUE"}
+
+
 @router.post("/onlyNotifyOnLangMatchFollowingFalse")
-async def notifyOnLangMatch(request:Request):
+async def notifyOnLangMatch(request: Request):
     print("Notifying on Lang Match Following False")
     updateLangMatch = """
         UPDATE users
@@ -242,9 +267,12 @@ async def notifyOnLangMatch(request:Request):
             cursor.execute(updateLangMatch, (request.state.userGID,))
             conn.commit()
     return {"message": "Only notifying following on language match set to FALSE"}
+
+
 @router.get("/followNotificationSettings")
 async def getFollowNotificationSettings(request: Request):
-    print("Getting Following Notification Settings for User:", request.state.username)
+    print("Getting Following Notification Settings for User:",
+          request.state.username)
     query = """
         SELECT onlyNotifyOnLangMatchFollowing FROM users WHERE googleID = %s
     """
@@ -255,8 +283,9 @@ async def getFollowNotificationSettings(request: Request):
     print("Success")
     return followSetting
 
+
 @router.post("/onlyNotifyOnLangMatchVideosTrue")
-async def notifyOnLangMatch(request:Request):
+async def notifyOnLangMatch(request: Request):
     print("Notifying on Lang Match Videos True")
     updateLangMatch = """
         UPDATE users
@@ -268,8 +297,10 @@ async def notifyOnLangMatch(request:Request):
             cursor.execute(updateLangMatch, (request.state.userGID,))
             conn.commit()
     return {"message": "Only notifying videos on language match set to TRUE"}
+
+
 @router.post("/onlyNotifyOnLangMatchVideosFalse")
-async def notifyOnLangMatch(request:Request):
+async def notifyOnLangMatch(request: Request):
     print("Notifying on Lang Match")
     updateLangMatch = """
         UPDATE users
@@ -281,9 +312,12 @@ async def notifyOnLangMatch(request:Request):
             cursor.execute(updateLangMatch, (request.state.userGID,))
             conn.commit()
     return {"message": "Only notifying videos on language match set to FALSE"}
+
+
 @router.get("/subscriptionNotificationSettings")
 async def getFollowNotificationSettings(request: Request):
-    print("Getting Following Notification Settings for User:", request.state.username)
+    print("Getting Following Notification Settings for User:",
+          request.state.username)
     query = """
         SELECT onlyNotifyOnLangMatchVideos FROM users WHERE googleID = %s
     """
@@ -295,12 +329,15 @@ async def getFollowNotificationSettings(request: Request):
     return subscriptionSetting
 
 # add file type checking as well as path validation
+
+
 @router.post("/caption/{videoID}")
 async def createCaption(request: Request, videoID: str, file: UploadFile = File(...)):
     try:
         file_location = f"files/{file.filename}"
         with open(file_location, "wb") as buffer:
-            while contents := await file.read(1024):  # Read in chunks of 1024 bytes
+            # Read in chunks of 1024 bytes
+            while contents := await file.read(1024):
                 buffer.write(contents)
         addCaption = """
             INSERT INTO captions
@@ -310,12 +347,13 @@ async def createCaption(request: Request, videoID: str, file: UploadFile = File(
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
                 language = file.headers.get("Language")
-                cursor.execute(addCaption, (request.state.userGID, videoID, file_location, language))
+                cursor.execute(addCaption, (request.state.userGID,
+                               videoID, file_location, language))
         return {"info": f"file '{file.filename}' saved at '{file_location}'"}
     except Exception as e:
         print(e)
         return HTTPException(status_code=500, detail="Caption Creation Failure")
-   
+
 # @router.get("/getUsername")
 # async def getUsername(request: Request):
 #     print("Getting Username")

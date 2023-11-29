@@ -4,41 +4,20 @@ import styles from "./Navbar.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import wait from "@/utilities/wait";
 import Gsignin from "../Auth/Gsignin";
 import test from "node:test";
 
 export default function Navbar() {
-  // const usernameQuery = useQuery({
-  //   queryKey: ["username"],
-  //   queryFn: async () => {
-  //     const response = await test_getUsername();
-  //     if (!response.ok) {
-  //       throw new Error("Network response was not ok");
-  //     }
-  //     return response.json();
-  //   },
-  // });
-
-  // async function test_getUsername() {
-  //   let response = await fetch("http://127.0.0.1:8000/getUsername", {
-  //     method: "GET",
+  // async function test_logout() {
+  //   await fetch("http://127.0.0.1:8000/logout", {
+  //     method: "POST",
   //     mode: "cors",
   //     credentials: "include",
   //   });
-  //   console.log(response);
-  //   return response;
+  //   window.location.reload();
   // }
-
-  async function test_logout() {
-    await fetch("http://127.0.0.1:8000/logout", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-    });
-    window.location.reload();
-  }
   const usernameQuery = useQuery({
     queryKey: ["username"],
     queryFn: () =>
@@ -47,7 +26,15 @@ export default function Navbar() {
         mode: "cors",
         credentials: "include",
       }).then((res) => res.json()),
-    refetchInterval: 5000,
+  });
+  const logoutMutation = useMutation({
+    mutationKey: ["username"],
+    mutationFn: () =>
+      fetch("http://127.0.0.1:8000/logout", {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+      }),
   });
 
   const signedIn = usernameQuery.isSuccess && usernameQuery.data.signedIn;
@@ -75,7 +62,16 @@ export default function Navbar() {
               </button>
             </Link>
           )}
-          {signedIn && <button onClick={test_logout}>Sign out</button>}
+          {signedIn && (
+            <button
+              onClick={() => {
+                logoutMutation.mutate();
+                window.location.reload();
+              }}
+            >
+              Sign out
+            </button>
+          )}
           {!signedIn && <Gsignin />}
         </div>
       )}

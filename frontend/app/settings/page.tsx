@@ -2,7 +2,7 @@
 
 import styles from "./page.module.css";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import FollowTable from "@/components/FollowTable/FollowTable";
 import FOLLOWDATA from "@/components/FollowTable/DummyData";
 import SubscriptionTable from "@/components/SubscriptionTable/SubscriptionTable";
@@ -11,6 +11,25 @@ import SUBCRIPTIONDATA from "@/components/SubscriptionTable/DummyData";
 import wait from "@/utilities/wait";
 
 export default function SettingsPage() {
+  const queryClient = useQueryClient();
+
+  const [username, setUsername] = useState("");
+  const [language, setLanguage] = useState("");
+
+  // Update username
+  const { mutate: mutateUsername } = useMutation({
+    mutationFn: () =>
+      fetch("http://localhost:8000/updateUsername/" + username, {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+      }).then((res) => console.log(res)),
+    onSuccess: () => {
+      console.log("Username updated");
+      queryClient.setQueryData(["username"], username);
+    },
+  });
+
   // Get follow list
   const followQuery = useQuery({
     queryKey: ["following"],
@@ -34,28 +53,34 @@ export default function SettingsPage() {
         <p className={styles.langText}>Change username:</p>
         <div className={styles.langPrompt}>
           <div className={styles.inputContainer}>
-            <input type="text" />
+            <input type="text" onChange={(e) => setUsername(e.target.value)} />
           </div>
         </div>
         <p className={styles.langText}>Preferred Language:</p>
         <div className={styles.langPrompt}>
           <div className={styles.inputContainer}>
-            <input type="text" />
+            <input type="text" onChange={(e) => setLanguage(e.target.value)} />
           </div>
         </div>
-        <FollowTable users={following} />
+        <FollowTable users={[]} />
         <FakeForm
           text="Get notified when an author you follow publishes?"
           thirdOption="Only for channels I'm subscribed to"
         />
-        <SubscriptionTable videos={subscriptions} />
+        <SubscriptionTable videos={[]} />
         <FakeForm
           text="Get notified when a channel you subscribe to gets a new post?"
           thirdOption="Only from authors I follow"
         />
         <div />
         <div className={styles.submitButton}>
-          <button>Submit</button>
+          <button
+            onClick={() => {
+              mutateUsername();
+            }}
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>
