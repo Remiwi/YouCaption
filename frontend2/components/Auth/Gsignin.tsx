@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 declare global {
   interface Window {
     handleCredentialResponse?: any;
@@ -53,25 +53,38 @@ export default function Gsignin() {
     console.log("Email: " + responsePayload.email);
   }
 
+  return (
+    <>
+      <div
+        id="g_id_onload"
+        data-client_id="258135953958-mgpvgvkajfc6gv30k6ldbih4v08deq45.apps.googleusercontent.com"
+        data-context="signin"
+        data-ux_mode="popup"
+        data-login_uri="http://localhost:3000"
+        data-callback="handleCredentialResponse"
+        data-auto_prompt="false"
+      ></div>
+      {/* =======
     return (
         <>
             <div id="g_id_onload"
                 data-client_id="258135953958-mgpvgvkajfc6gv30k6ldbih4v08deq45.apps.googleusercontent.com"
                 data-context="signin"
                 data-ux_mode="popup"
-                data-login_uri="http://localhost:3000"
                 data-callback = "handleCredentialResponse"
                 data-auto_prompt="false">
             </div>
+>>>>>>> c6ec00000555b8a495439ba9bda41b5dbd2e3217 */}
 
-            <div className="g_id_signin"
-                data-type="standard"
-                data-shape="rectangular"
-                data-theme="filled_blue"
-                data-text="signin_with"
-                data-size="large"
-                data-logo_alignment="left">
-            </div>
-        </>
-    )
+      <div
+        className="g_id_signin"
+        data-type="standard"
+        data-shape="rectangular"
+        data-theme="filled_blue"
+        data-text="signin_with"
+        data-size="large"
+        data-logo_alignment="left"
+      ></div>
+    </>
+  );
 }
