@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import json
 import uuid
-from fastapi import APIRouter, Form, Request, Response, status
+from fastapi import APIRouter, Form, Request, Response, status, HTTPException
 from typing import Annotated
 from contextlib import closing
 from dependencies import get_db_conn, verify
@@ -99,14 +99,18 @@ async def validate(credential: Annotated[str, Form()], request: Request, respons
 
 @router.post("/logout")
 async def logout(request: Request, response: Response):
-    print("User Logging Out")
-    sessionid = request.cookies.get("sessionid")
-    print("Destroying session with sessionID: ", sessionid)
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(
-                "DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
-            conn.commit()
-    response.delete_cookie("sessionid", samesite="none", secure="true")
-    response.status_code = status.HTTP_200_OK
-    return response
+    try:
+        print("User Logging Out")
+        sessionid = request.cookies.get("sessionid")
+        print("Destroying session with sessionID: ", sessionid)
+        with closing(get_db_conn()) as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(
+                    "DELETE FROM sessions WHERE sessionid = %s", (sessionid, ))
+                conn.commit()
+        response.delete_cookie("sessionid", samesite="none", secure="true")
+        response.status_code = status.HTTP_200_OK
+        return response
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="No user logged in")
