@@ -37,6 +37,7 @@ export default function Navbar() {
       mode: "cors",
       credentials: "include",
     });
+    window.location.reload();
   }
   const usernameQuery = useQuery({
     queryKey: ["username"],
@@ -46,7 +47,7 @@ export default function Navbar() {
         mode: "cors",
         credentials: "include",
       }).then((res) => res.json()),
-    refetchInterval: 200,
+    refetchInterval: 5000,
   });
 
   const signedIn = usernameQuery.isSuccess && usernameQuery.data.signedIn;
