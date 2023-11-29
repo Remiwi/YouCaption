@@ -1,6 +1,5 @@
 "use client";
 import Gsignin from "@/components/Auth/Gsignin"
-import { useState } from "react";
 
 export default function Test() {
 
@@ -168,15 +167,6 @@ export default function Test() {
                 })).json())}
                 > Get Username
             </button>
-            <form onSubmit={handleSubmit}>
-                Update Username<br />
-                <input 
-                    type="text" 
-                    value={username} 
-                    onChange={e => setUsername(e.target.value)} 
-                />
-                <input type="submit" />
-            </form>
             <button
                 onClick={async () =>  console.log(await (await fetch("http://127.0.0.1:8000/follow/UniqueBaron8851", {
                     method: "POST",
