@@ -19,13 +19,16 @@ async def getUserGID(request: Request):
                 userGID = cursor.fetchone()
                 if userGID:
                     request.state.userGID = userGID[0]
+                else:
+                    raise HTTPException(status_code=404, detail = "No account found")
+                print(userGID)
                 query = "SELECT username FROM users WHERE googleID = %s"
                 cursor.execute(query, (request.state.userGID, ))
                 username = cursor.fetchone()
                 if username:
                     request.state.username = username[0]
-        # print("userGID: ", request.state.userGID)
-        # print("username: ", request.state.username)
+        print("userGID: ", request.state.userGID)
+        print("username: ", request.state.username)
     else:
         print("NO SESSION ID")
         raise HTTPException(status_code=401, detail="No Session")
