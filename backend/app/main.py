@@ -115,23 +115,49 @@ async def get_PCapDataList(username: str):
 
 
 @app.get("/userFollowerCount/{username}")
-async def get_uFollowerCount(username: str):
+async def get_userFollowerCount(username: str):
     print("Getting following count of user:", username)
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            query = """
+    getFollowingCount = """
                 SELECT COUNT(followerGID)
                 FROM userFollows as uf
                 JOIN users As u ON uf.followingGID = u.googleID
                 WHERE u.username = %s
             """
-            cursor.execute(query, (username,))
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getFollowingCount, (username,))
             numFollowers = cursor.fetchone()
             print("Follow Count is:", numFollowers[0])
             return (numFollowers)
 
+@app.get("/subscriptionListVideo/{videoID}")
+async def getSubscriptionListFromVideoID(videoID: str):
+    print("Getting subscription list for video:", videoID)
+    getSubList = """
+        SELECT username
+        FROM users as u 
+        JOIN userSavedVideos AS usv ON u.googleID = usv.userGID
+        WHERE videoID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getSubList, (videoID, ))
+            SubList = cursor.fetchall()
+            return (SubList)
+        
 
+@app.get("/subscriptionListUser/{username}")
+async def getSubscriptionListFromVideoID(username: str):
+    print("Getting subscription list for user:", username)
+    getSubList = """
+        SELECT videoID
+        FROM userSavedVideos AS usv
+        JOIN users as u ON  usv.userGID = u.googleID
+        WHERE username = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(getSubList, (username, ))
+            SubList = cursor.fetchall()
+            return (SubList)
 
-@app.get("/testt")
-async def testt():
-    return {"message": "testt"}
