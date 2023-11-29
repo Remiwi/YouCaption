@@ -114,6 +114,19 @@ async def get_PCapDataList(username: str):
             return (capList)
 
 
+@app.get("/userFollowerCount/{userGID}")
+async def get_uFollowerCount(userGID: str):
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            query = "SELECT followerCount FROM users WHERE googleID = %s"
+            
+            cursor.execute(query, (userGID,))
+            numFollowers = cursor.fetchall()
+
+            return (numFollowers)
+
+
+
 @app.get("/testt")
 async def testt():
     return {"message": "testt"}
