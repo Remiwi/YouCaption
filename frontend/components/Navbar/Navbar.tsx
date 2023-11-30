@@ -3,30 +3,20 @@
 import styles from "./Navbar.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import wait from "@/utilities/wait";
 import Gsignin from "../Auth/Gsignin";
-import test from "node:test";
+import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 export default function Navbar() {
   const usernameQuery = useQuery({
     queryKey: ["username"],
     queryFn: () =>
-      fetch("http://127.0.0.1:8000/getUsername", {
-        method: "GET",
-        mode: "cors",
-        credentials: "include",
-      }).then((res) => res.json()),
+      fetchGet("http://127.0.0.1:8000/getUsername").then((res) => res.json()),
   });
   const logoutMutation = useMutation({
     mutationKey: ["username"],
     mutationFn: () =>
-      fetch("http://127.0.0.1:8000/logout", {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-      }).then(() => console.log("logged out")),
+      fetchPost("http://127.0.0.1:8000/logout").then((res) => res.json()),
     onSuccess: () => {
       usernameQuery.refetch();
     },

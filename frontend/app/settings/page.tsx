@@ -26,7 +26,10 @@ export default function SettingsPage() {
       }).then((res) => console.log(res)),
     onSuccess: () => {
       console.log("Username updated");
-      queryClient.setQueryData(["username"], username);
+      queryClient.setQueryData(["username"], {
+        username: username,
+        signedIn: true,
+      });
     },
   });
 
