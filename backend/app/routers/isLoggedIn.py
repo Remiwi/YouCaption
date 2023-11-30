@@ -27,8 +27,8 @@ async def getUserGID(request: Request):
                 username = cursor.fetchone()
                 if username:
                     request.state.username = username[0]
-        print("userGID: ", request.state.userGID)
-        print("username: ", request.state.username)
+        # print("userGID: ", request.state.userGID)
+        # print("username: ", request.state.username)
     else:
         print("NO SESSION ID")
         raise HTTPException(status_code=401, detail="No Session")

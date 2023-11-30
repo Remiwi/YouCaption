@@ -57,6 +57,7 @@ async def check_credentials(request: Request, call_next):
                     new_date = current_date + one_week
                     cursor.execute(query, (new_date, sessionid))
                 conn.commit()
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 
