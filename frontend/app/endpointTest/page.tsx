@@ -1,5 +1,6 @@
 "use client";
 import Gsignin from "@/components/Auth/Gsignin"
+import { useState } from "react"
 
 export default function Test() {
 
@@ -12,9 +13,9 @@ export default function Test() {
             method: "POST",
             mode: "cors",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            }
+            // headers: {
+            //     "Content-Type": "application/x-www-form-urlencoded",
+            // }
         })).json());
     };
 
@@ -143,6 +144,15 @@ export default function Test() {
     return (
         <>
             <Gsignin />
+            <form onSubmit={handleSubmit}>
+                Change Username<br />
+                <input 
+                    type="text" 
+                    value={username} 
+                    onChange={e => setUsername(e.target.value)} 
+                />
+                <input type="submit" />
+            </form>
             <button
                 onClick={async () =>  console.log(await(await fetch("http://127.0.0.1:8000/currentLanguage", {
                     mode: "cors",
