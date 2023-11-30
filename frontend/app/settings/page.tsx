@@ -9,6 +9,7 @@ import SubscriptionTable from "@/components/SubscriptionTable/SubscriptionTable"
 import SUBCRIPTIONDATA from "@/components/SubscriptionTable/DummyData";
 
 import wait from "@/utilities/wait";
+import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
@@ -19,13 +20,8 @@ export default function SettingsPage() {
   // Update username
   const { mutate: mutateUsername } = useMutation({
     mutationFn: () =>
-      fetch("http://localhost:8000/updateUsername/" + username, {
-        method: "POST",
-        mode: "cors",
-        credentials: "include",
-      }).then((res) => console.log(res)),
+      fetchPost("http://127.0.0.1:8000/updateUsername/" + username),
     onSuccess: () => {
-      console.log("Username updated");
       queryClient.setQueryData(["username"], {
         username: username,
         signedIn: true,
