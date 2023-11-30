@@ -8,14 +8,6 @@ import Gsignin from "../Auth/Gsignin";
 import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 export default function Navbar() {
-  async function test_logout() {
-    await fetch("http://127.0.0.1:8000/logout", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-    });
-    window.location.reload();
-  }
   const usernameQuery = useQuery({
     queryKey: ["username"],
     queryFn: () =>
@@ -60,13 +52,6 @@ export default function Navbar() {
               onClick={() => {
                 logoutMutation.mutate();
               }}
-            >
-              Sign out
-            </button>
-          )}
-          {signedIn && (
-            <button
-              onClick= {test_logout}
             >
               Sign out
             </button>
