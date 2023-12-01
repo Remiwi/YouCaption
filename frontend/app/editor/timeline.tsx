@@ -173,7 +173,7 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
         };
         pre[newRowIndex] = newRow;
       }
-
+      adjustMinMaxTime(pre[rowIndex].actions.length-1, false);
       return [...pre];
     });
     console.log(data);
@@ -204,7 +204,10 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     deleteBlockMutation.mutate();
   };
   
-  const adjustMinMaxTime = (index: number, firstMount: boolean) => {
+  const adjustMinMaxTime = (index: number, writeToBackend: boolean) => {
+    if (index < 0 || index >= data[0].actions.length) {
+      return;
+    }
     const startTime = data[0].actions[index].start;
     const endTime = data[0].actions[index].end;
     if (index-1 >= 0) {
@@ -213,7 +216,8 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     if (index-1 < data[0].actions.length-2) {
       data[0].actions[index+1].minStart = endTime;
     } 
-    if (!firstMount) { // need this b/c w/o it, it will overwrite the last elem's stuff in backend 
+  
+    if (writeToBackend) { // need this b/c w/o it, it will overwrite the last elem's stuff in backend  (on first mount)
       const captionData = {
         startTime: startTime,
         endTime: endTime,
@@ -288,6 +292,9 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
         return;
       } else {
         handleDeleteAction();
+        if (data[0].actions.length > 1) {
+          data[0].actions[data[0].actions.length-2].maxEnd = fullDuration; // need to adjust the last blocks maxEnd
+        }
       }
     }}
     >
@@ -304,10 +311,9 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
           if  (data.length) {
             lastItemEnd = data[data.length - 1]?.actions[data[data.length - 1]?.actions.length - 1]?.end;
           }
-          handleAddAction(data[0], lastItemEnd);
+          handleAddAction(data[0], lastItemEnd); 
         }
 
-        
       }}
     >
       <FaRegPlusSquare/>
@@ -329,7 +335,6 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
   >
   print data
   </button> */}
-
 
     <div className={styles.timeline}>
       <Timeline
@@ -356,7 +361,7 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
           const foundIndex = data[0].actions.findIndex((item) => item.id === action.id);
           console.log(foundIndex);
           setBlockID(foundIndex); 
-          adjustMinMaxTime(foundIndex, false);
+          adjustMinMaxTime(foundIndex, true);
         }}
 
         onActionMoveEnd={ (params) => {
@@ -364,7 +369,7 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
           const foundIndex = data[0].actions.findIndex((item) => item.id === action.id);
           console.log(foundIndex);
           setBlockID(foundIndex); 
-          adjustMinMaxTime(foundIndex, false);
+          adjustMinMaxTime(foundIndex, true);
         }}
 
         onClickAction={ (e, {action, row, time}) => {
