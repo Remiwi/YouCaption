@@ -29,7 +29,7 @@ app.include_router(editor.router)
 async def check_credentials(request: Request, call_next):
     sessionid = request.cookies.get("sessionid")
     response = await call_next(request)
-    #print(sessionid)
+    # print(sessionid)
     if sessionid:
         # query for finding the session id in the id table
         query = "SELECT * FROM sessions WHERE sessionID = %s"
@@ -76,29 +76,30 @@ async def root():
             cursor.execute("SELECT * FROM ratings")
             ratings = cursor.fetchall()
             return {
-                "users": users, 
-                "sessions": sessions, 
+                "users": users,
+                "sessions": sessions,
                 "Follow Table": userFollows,
-                "Subscription Table": subscriptions,  
+                "Subscription Table": subscriptions,
                 "ratings": ratings
             }
 
 
-@app.get("/vidPgCapData/{videoID}")
+@app.get("/videoPageCaptionData/{videoID}")
 async def get_VCapDataList(videoID: str):
     print("Getting Captions for videoID", videoID)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = "SELECT id, userGID, rating, language FROM captions WHERE videoID = %s"
+            query = ""
 
             cursor.execute(query, (videoID,))
             caps = cursor.fetchall()
 
             capList = [cap[0] for cap in caps]
+            print(capList)
             return (capList)
 
 
-@app.get("/pfPgCapData/{username}")
+@app.get("/userPageCaptionData/{username}")
 async def get_PCapDataList(username: str):
     print("Getting Captions for user", username)
     with closing(get_db_conn()) as conn:
@@ -131,6 +132,7 @@ async def get_userFollowerCount(username: str):
             print("Follow Count is:", numFollowers[0])
             return (numFollowers)
 
+
 @app.get("/subscriptionListVideo/{videoID}")
 async def getSubscriptionListFromVideoID(videoID: str):
     print("Getting subscription list for video:", videoID)
@@ -145,7 +147,7 @@ async def getSubscriptionListFromVideoID(videoID: str):
             cursor.execute(getSubList, (videoID, ))
             SubList = cursor.fetchall()
             return (SubList)
-        
+
 
 @app.get("/subscriptionListUser/{username}")
 async def getSubscriptionListFromVideoID(username: str):
@@ -161,4 +163,3 @@ async def getSubscriptionListFromVideoID(username: str):
             cursor.execute(getSubList, (username, ))
             SubList = cursor.fetchall()
             return (SubList)
-

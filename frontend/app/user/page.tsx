@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { useQuery } from "@tanstack/react-query";
+import { fetchGet } from "@/utilities/myFetch";
 import wait from "@/utilities/wait";
 
 import Subtable from "@/components/Subtable/Subtable";
@@ -23,18 +24,21 @@ export default function User() {
   const followersQuery = useQuery({
     queryKey: ["followers", u],
     queryFn: () =>
-      fetch("http://localhost:8000/dummy/" + u)
-        .then((res) => res.json())
-        .then((data) => data.followers),
+      fetch("http://127.0.0.1:8000/userFollowerCount/" + u).then((res) =>
+        res.json()
+      ),
   });
-  const followers = followersQuery.isLoading ? "?" : followersQuery.data;
+  const followers = followersQuery.isSuccess ? followersQuery.data : "?";
 
-  // get user language
+  // get language
   const langaugeQuery = useQuery({
     queryKey: ["language"],
-    queryFn: () => wait(1000).then(() => "english"),
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/currentLanguage").then((r) => r.json()),
   });
-  const userLang = langaugeQuery.isSuccess ? langaugeQuery.data : "???";
+  const userLang = langaugeQuery.isSuccess
+    ? langaugeQuery.data
+    : "your language";
 
   // get subtitles
   const subtitlesQuery = useQuery({
@@ -46,12 +50,12 @@ export default function User() {
   // stats from data
   const totalSubs = subtitles.length;
   const subsInYourLang = subtitles.filter(
-    (s) => s.language.toLowerCase() === userLang
+    (s) => s.language.toLowerCase() === userLang.toLowerCase()
   ).length;
   const avgRating = subtitles.reduce((acc, s) => acc + s.rating, 0) / totalSubs;
   const avgRatingInYourLang =
     subtitles
-      .filter((s) => s.language.toLowerCase() === userLang)
+      .filter((s) => s.language.toLowerCase() === userLang.toLowerCase())
       .reduce((acc, s) => acc + s.rating, 0) / subsInYourLang;
 
   return (
@@ -68,7 +72,9 @@ export default function User() {
           <div className={styles.statsRow}>
             <div className={styles.stat}>
               <p>{totalSubs} subtitles</p>
-              <p>{subsInYourLang} in your language</p>
+              <p>
+                {subsInYourLang} in {userLang}
+              </p>
             </div>
             <div className={styles.stat}>
               <p>{avgRating.toFixed(1)} avg rating</p>

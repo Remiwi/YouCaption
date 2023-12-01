@@ -20,7 +20,15 @@ import styles from "./Subtable.module.css";
 
 import Filter from "../Filters/Filter";
 
-type SubtableProps = {
+export type SubtableData = {
+  author: string;
+  video: string;
+  language: string;
+  rating: number;
+  download: string;
+}[];
+
+export type SubtableProps = {
   subtitles: {
     author: string;
     video: string;

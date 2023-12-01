@@ -17,6 +17,16 @@ export default function SettingsPage() {
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
 
+  // Get username
+  const usernameQuery = useQuery({
+    queryKey: ["username"],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/getUsername").then((res) => res.json()),
+  });
+  const currentUsername = usernameQuery.isSuccess
+    ? usernameQuery.data.username
+    : "";
+
   // Update username
   const { mutate: mutateUsername } = useMutation({
     mutationFn: () =>
@@ -26,6 +36,25 @@ export default function SettingsPage() {
         username: username,
         signedIn: true,
       });
+    },
+  });
+
+  // Get language
+  const languageQuery = useQuery({
+    queryKey: ["language"],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/currentLanguage").then((res) =>
+        res.json()
+      ),
+  });
+  const currentLanguage = languageQuery.isSuccess ? languageQuery.data : "";
+
+  // Update language
+  const { mutate: mutateLanguage } = useMutation({
+    mutationFn: () =>
+      fetchPost("http://127.0.0.1:8000/updateLanguage/" + language),
+    onSuccess: () => {
+      queryClient.setQueryData(["language"], language);
     },
   });
 
@@ -52,13 +81,21 @@ export default function SettingsPage() {
         <p className={styles.langText}>Change username:</p>
         <div className={styles.langPrompt}>
           <div className={styles.inputContainer}>
-            <input type="text" onChange={(e) => setUsername(e.target.value)} />
+            <input
+              type="text"
+              placeholder={currentUsername}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
         </div>
         <p className={styles.langText}>Preferred Language:</p>
         <div className={styles.langPrompt}>
           <div className={styles.inputContainer}>
-            <input type="text" onChange={(e) => setLanguage(e.target.value)} />
+            <input
+              type="text"
+              placeholder={currentLanguage}
+              onChange={(e) => setLanguage(e.target.value)}
+            />
           </div>
         </div>
         <FollowTable users={[]} />
@@ -75,7 +112,13 @@ export default function SettingsPage() {
         <div className={styles.submitButton}>
           <button
             onClick={() => {
-              mutateUsername();
+              if (username !== "") {
+                mutateUsername();
+              }
+              if (language !== "") {
+                mutateLanguage();
+              }
+              window.location.reload();
             }}
           >
             Submit
