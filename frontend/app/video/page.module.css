@@ -88,3 +88,20 @@
     font-size: 1.3rem;
   }
 }
+
+.modal-overlay {
+  background-color: var(--color-grey-neutral);
+  z-index: 1000; /* High z-index to be on top */
+}
+
+.modalcontent {
+  width: 50%; /* Adjust the width as needed */
+  margin: auto;
+  padding: 30px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
+  text-align: center;
+  position: relative;
+}
+
+
