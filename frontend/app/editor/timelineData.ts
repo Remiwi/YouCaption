@@ -22,23 +22,4 @@ export const timelineData: SubtitleTimeline[] = [
         },
 
     ]}
-//   {
-//     id: "0",
-//     actions: [
-//       {
-//         id: "action0",
-//         start: 0,
-//         end: 2,
-//         effectId: "effect0",
-//         text: "fart",
-//       },
-//       {
-//         id: "action1",
-//         start: 4,
-//         end: 8,
-//         effectId: "action01",
-//         text: "pooop",
-//       },
-//     ],
-//   },
 ];
