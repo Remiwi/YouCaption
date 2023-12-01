@@ -105,9 +105,16 @@
 .button {
     border-radius: '20px';
     background-color: var(--color-primary);
-    color: 'white';
+    color: white;
+    display: flex;
+    flex-direction: row;
 }
-
+.button h3 {
+    font-size: 20px;
+}
+.buttontext {
+    margin-left: 10px;
+}
 .timelineBar {
     display: flex; /* Use Flexbox */
     justify-content: space-between; /* Space out the child elements */
@@ -118,6 +125,16 @@
 .timelineBarTime {
     text-align: center; /* Center the text of the first item */
     flex-grow: 1; /* Allow the first item to grow and take available space */
+}
+
+.timelineBarIcons {
+    margin-left: 10px;
+}
+.timelineBarIcons button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
 .titleBar {
     display: flex; /* Enable Flexbox */

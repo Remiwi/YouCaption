@@ -1,10 +1,13 @@
 import { Timeline, TimelineEffect, TimelineState, TimelineEngine } from '@xzdarcy/react-timeline-editor';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styles from "./page.module.css"
+import { FaRegTrashAlt, FaRegPlusSquare } from "react-icons/fa";
 import { CustomRender0 } from './custom';
 import { timelineData, SubtitleTimeline, Block, selected } from './timelineData';
 import TextEditor from './editingBlock';
 import TimelinePlayer from './timelineplayer';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchGetWithBody, fetchPost,fetchPostJSON } from "@/utilities/myFetch";
 
 export const mockEffect: Record<string, TimelineEffect> = {
   effect0: {
@@ -25,6 +28,11 @@ const CustomScale = (props: {scale: number}) => {
   return <>{`${min}:${second}`}</>
 }
 
+interface CaptionData {
+  startTime: number;
+  endTime: number;
+  text: string;
+}
 
 
 type TimelineEditorProps = {
@@ -47,15 +55,64 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     marginBottom: '30px',
     paddingRight:'50px'
 
-  };
+  }
+  
+  const addCaptionMutation = useMutation({
+    mutationKey: ['addCaption'],
+    mutationFn: (captionData: CaptionData) => fetchPostJSON('http://127.0.0.1:8000/editor/addNewBlock/', {
+      body: JSON.stringify({
+        startTime: captionData.startTime,
+        endTime: captionData.endTime,
+        text: captionData.text
+      })
+    }),
+    onSuccess: (data) => {
+      console.log('Caption added successfully:', data);
+    },
+    onError: (error) => {
+      console.error('Error adding caption:', error);
+    },
+  });
+
+  const editCaptionMutation = useMutation({
+    mutationKey: ['editCaption'],
+    mutationFn: (captionData: CaptionData) => fetchPostJSON('http://127.0.0.1:8000/editor/editExistingBlock/', {
+      body: JSON.stringify({
+        startTime: captionData.startTime,
+        endTime: captionData.endTime,
+        text: captionData.text,
+        blockID: blockID
+      })
+    }),
+    onSuccess: (data) => {
+      console.log('Caption added successfully:', data);
+    },
+    onError: (error) => {
+      console.error('Error adding caption:', error);
+    },
+  });
+
+  const deleteBlockMutation = useMutation({
+    mutationKey: ['deleteCaption'],
+    mutationFn: () => fetchPostJSON('http://127.0.0.1:8000/editor/deleteBlock/'),
+    onSuccess: (data) => {
+      console.log('Caption deleted successfully:', data);
+    },
+    onError: (error) => {
+      console.error('Error deleting caption', error);
+    },
+  });
+  
   const engine = new TimelineEngine();  
   engine.setTime(600);
   const idRef = useRef (0);
   
-
-
   const handleAddAction = (row: SubtitleTimeline, time: number) => {
     idRef.current++;
+    let minStart = 0;
+    if (row && row.actions.length > 0) {
+      minStart = row.actions[row.actions.length-1].end;
+    }
     setData((pre) => {
       let rowIndex = 0;
       if (row) {
@@ -70,7 +127,7 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
         end: time + 4,
         effectId: "effect0",
         text: "",
-        minStart:row.actions[row.actions.length-1].end
+        minStart:minStart
       };
 
       if (row) {
@@ -86,7 +143,13 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
 
       return [...pre];
     });
-    // TODO: write back to db that i added a new elem
+    console.log(data);
+    const captionData = {
+      startTime: time,
+      endTime: time+4,
+      text: ""
+    };
+    addCaptionMutation.mutate(captionData);
 }
 
   const adjustMinMaxTime = (index: number) => {
@@ -108,7 +171,20 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
       newData[0].actions = updatedItems;
       return newData;
     });
-    // TODO: prob should do some callback to db here but its structured bad so i shall deal with this...later
+    const captionData = {
+      startTime: updatedItems[index].start,
+      endTime: updatedItems[index].end,
+      text: newText,
+      blockID: blockID
+    };
+    editCaptionMutation.mutate(captionData, {
+      onSuccess: () => {
+        console.log("Caption added successfully ");
+      },
+      onError: (error) => {
+        console.log("Error adding caption ");
+      }
+    });
   };
 
   const autoScrollWhenPlay = useRef<boolean>(false);
@@ -122,8 +198,6 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
 
 
   return (
-
-    
     <div>
       <TimelinePlayer timelineState={timelineState} autoScrollWhenPlay={autoScrollWhenPlay}  newTime={newTime} onTimeChange={onTimeChange} newVideoState={newVideoState} onVideoStateChange={onVideoStateChange} />
 
@@ -139,8 +213,6 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     <div className={styles.timelineBarTime}>
     <h2>{timeRender(newTime)}</h2>
     </div>
-    
-{/* button */}
     <button
     onClick={() => {
       let lastItemEnd = 0
@@ -154,11 +226,33 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     +
   </button>
   </div>
+    <div className={styles.timelineBarIcons}>
+    <button
+      onClick={() => {
+        if (data[0].actions.length === 0) {
+          handleAddAction(data[0], 0);
+        } else {
+          let lastItemEnd = 0
+          if  (data.length) {
+            lastItemEnd = data[data.length - 1]?.actions[data[data.length - 1]?.actions.length - 1]?.end;
+          }
+          handleAddAction(data[0], lastItemEnd);
+        }
+
+        
+      }}
+    >
+      <FaRegPlusSquare/>
+    </button>
+    </div>
+  
+
+  </div>
 
 
 
-
-  {/* <button
+{/* 
+  <button
     onClick={() => {
       if (data) {
         console.log(data);
@@ -189,34 +283,33 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
         getActionRender={(action, row) => {
           return <CustomRender0 action={action as Block} row={row as SubtitleTimeline} selectedId={blockID}/>
         }}
-
-        // onDoubleClickRow={(e, {row, time}) => {
-        //   console.log(row);
-        //   handleAddAction(row as SubtitleTimeline, time);          
-        // }}
-        
         onActionResizeEnd={ (params) => {
           const { action, row, start, end, dir } = params;
           const foundIndex = data[0].actions.findIndex((item) => item.id === action.id);
-          adjustMinMaxTime(foundIndex);
+          console.log(foundIndex);
+          setBlockID(foundIndex); 
+          adjustMinMaxTime(foundIndex, false);
         }}
 
+        onActionMoveEnd={ (params) => {
+          const { action, row, start, end } = params;
+          const foundIndex = data[0].actions.findIndex((item) => item.id === action.id);
+          console.log(foundIndex);
+          setBlockID(foundIndex); 
+          adjustMinMaxTime(foundIndex, false);
+        }}
 
         onClickAction={ (e, {action, row, time}) => {
           const foundIndex = data[0].actions.findIndex((item) => item.id === action.id);
           console.log(foundIndex);
           setBlockID(foundIndex); 
-          adjustMinMaxTime(foundIndex);
-          // TODO: write back to db the time of associated block in backend (each block in arr in backend should have index that is same as front end)
-
+          // removed adjustMinMaxTime here because it'd glitch and overwrite its surroundings stuff 
         }}
   
         // y = 20*num_scale (y is seconds, the visual will be min and seconds)
         scale={fullDuration/20}
         scaleSplitCount={10}
         getScaleRender={(scale) => <CustomScale scale={scale}/>}
-
-        
       />
       
     </div>
