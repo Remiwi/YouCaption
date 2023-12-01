@@ -56,6 +56,39 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     paddingRight:'50px'
 
   }
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await fetchData();
+        const array = JSON.parse(data);
+        if (Array.isArray(array)) {
+          setData((prevData) => {
+            prevData[0].actions = array;
+            idRef.current = array.length-1;
+            return prevData;
+          });
+          for (let index = 0; index < data.length; index++) {
+            adjustMinMaxTime(index, true);
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetching data:', error);
+      }
+    };
+  
+    getData();
+  }, []); 
+
+  async function fetchData() {
+    try {
+      const response = await fetchGetWithBody('http://127.0.0.1:8000/editor/userExistingTimeline/');
+      const data = await response.json(); 
+      console.log('Success:', data);
+      return data; 
+    } catch (error) {
+      alert(error);
+    }
+  }
   
   const addCaptionMutation = useMutation({
     mutationKey: ['addCaption'],
@@ -180,6 +213,22 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     if (index-1 < data[0].actions.length-2) {
       data[0].actions[index+1].minStart = endTime;
     } 
+    if (!firstMount) { // need this b/c w/o it, it will overwrite the last elem's stuff in backend 
+      const captionData = {
+        startTime: startTime,
+        endTime: endTime,
+        text: data[0].actions[index].text,
+        blockID: index
+      };
+      editCaptionMutation.mutate(captionData, {
+        onSuccess: () => {
+          console.log("Caption adjusted successfully ");
+        },
+        onError: (error) => {
+          console.log("Error adding caption ");
+        }
+      });
+    }
   }
 
   const onUpdateText = (index: number, newText: string) => {
