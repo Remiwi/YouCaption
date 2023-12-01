@@ -97,6 +97,20 @@ async def addNewBlock(request: Request):
         return HTTPException(status_code=500, detail="Add Block Failure (try clicking the make sub button first)")
    
 
+@router.post("/deleteBlock")
+async def deleteBlock(request: Request):
+    """
+    Called when user deletes a block on their timeline
+
+    The user can only delete the last block on their timeline
+    """
+    if request.state.userGID in userTimelines:
+        currBlockEntry = userTimelines[request.state.userGID]
+        currBlockEntry.subtitleBlocks.pop()
+        userTimelines[request.state.userGID] = currBlockEntry
+    else:
+        return HTTPException(status_code=500, detail="Delete Block Failure (try clicking the make sub button first)")
+
 @router.post("/editExistingBlock")
 async def editExistingBlock(request: Request):
     """

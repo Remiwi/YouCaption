@@ -151,8 +151,27 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     };
     addCaptionMutation.mutate(captionData);
 }
-
-  const adjustMinMaxTime = (index: number) => {
+  const handleDeleteAction = () => {
+    if (data[0].actions.length === 0) {
+      return;
+    }
+    idRef.current--;
+    setData((prevData) => {
+      const rowIndex = 0;
+      const newActions = [...prevData[rowIndex].actions]; //make copy of actions 
+      if (newActions.length > 0) {
+        newActions.pop();
+      }
+      const updatedRow = { ...prevData[rowIndex], actions: newActions };  // create copy of the row with the updated actions
+      const newData = [...prevData]; // make new array with the updated row
+      newData[rowIndex] = updatedRow;
+      console.log(newData);
+      return newData;
+    });
+    deleteBlockMutation.mutate();
+  };
+  
+  const adjustMinMaxTime = (index: number, firstMount: boolean) => {
     const startTime = data[0].actions[index].start;
     const endTime = data[0].actions[index].end;
     if (index-1 >= 0) {
@@ -213,19 +232,19 @@ const TimelineEditor: React.FC<TimelineEditorProps>  = ({ newTime, onTimeChange,
     <div className={styles.timelineBarTime}>
     <h2>{timeRender(newTime)}</h2>
     </div>
+    <div className={styles.timelineBarIcons}> 
     <button
     onClick={() => {
-      let lastItemEnd = 0
-      if  (data.length) {
-        lastItemEnd = data[data.length - 1]?.actions[data[data.length - 1]?.actions.length - 1]?.end;
+      if (data[0].actions.length === 0) {
+        return;
+      } else {
+        handleDeleteAction();
       }
-      handleAddAction(data[0], lastItemEnd);
-      
     }}
-  >
-    +
-  </button>
-  </div>
+    >
+      <FaRegTrashAlt/>
+    </button>
+    </div>
     <div className={styles.timelineBarIcons}>
     <button
       onClick={() => {
