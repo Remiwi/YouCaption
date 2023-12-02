@@ -6,7 +6,16 @@ export function fetchGet(url: string, options?: any) {
   };
 
   const mergedOptions: RequestInit = { ...headers, ...options };
-  return fetch(url, { ...headers, ...options });
+  return fetch(url, { ...headers, ...options })  .then(response => {
+    if (!response.ok) {
+      if (response.status == 401) {
+        throw new Error('Please log in');
+      } else {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+    }
+    return response.json();
+  });;
 }
 
 export function fetchGetWithBody(url: string, options?: any) {
