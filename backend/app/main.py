@@ -89,14 +89,28 @@ async def get_VCapDataList(videoID: str):
     print("Getting Captions for videoID", videoID)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = ""
+            query = """
+                SELECT users.username AS author, videoID, captions.language, rating, captions.captionID AS captionID
+                FROM (
+                    captions JOIN users ON captions.userGID = users.googleID
+                )
+                WHERE videoID = %s
+            """
 
             cursor.execute(query, (videoID,))
             caps = cursor.fetchall()
 
-            capList = [cap[0] for cap in caps]
-            print(capList)
-            return (capList)
+            json_data = [
+                {
+                    "author": cap[0],
+                    "videoID": cap[1],
+                    "language": cap[2],
+                    "rating": cap[3],
+                    "captionID": cap[4]
+                } for cap in caps
+            ]
+
+            return JSONResponse(content=json_data)
 
 
 @app.get("/userPageCaptionData/{username}")
@@ -104,16 +118,30 @@ async def get_PCapDataList(username: str):
     print("Getting Captions for user", username)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
-            query = """SELECT c.id, c.userGID, c.language, c.rating 
-                FROM captions AS c
-                JOIN users AS u ON c.userGID = u.googleID
-                WHERE u.username = %s
+            query = """
+                SELECT users.username AS author, videoID, captions.language, rating, captions.captionID AS captionID
+                FROM (
+                    captions JOIN users ON captions.userGID = users.googleID
+                )
+                WHERE users.username = %s
             """
+
             cursor.execute(query, (username,))
             caps = cursor.fetchall()
 
-            capList = [cap[0] for cap in caps]
-            return (capList)
+            json_data = [
+                {
+                    "author": cap[0],
+                    "video": cap[1],
+                    "language": cap[2],
+                    "rating": {
+                        "averageRating": cap[3],
+                        "captionID": cap[4]
+                    }
+                } for cap in caps
+            ]
+
+            return JSONResponse(content=json_data)
 
 
 @app.get("/userFollowerCount/{username}")

@@ -6,6 +6,17 @@ export function fetchGet(url: string, options?: any) {
   };
 
   const mergedOptions: RequestInit = { ...headers, ...options };
+  return fetch(url, { ...headers, ...options });
+}
+
+export function fetchGetErrorHandled(url: string, options?: any) {
+  const headers = {
+    method: 'GET',
+    mode: 'cors',
+    credentials: 'include',
+  };
+
+  const mergedOptions: RequestInit = { ...headers, ...options };
   return fetch(url, { ...headers, ...options })  .then(response => {
     if (!response.ok) {
       if (response.status == 401) {

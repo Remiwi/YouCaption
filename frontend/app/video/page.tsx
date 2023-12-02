@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { useQuery } from "@tanstack/react-query";
-import { fetchGet } from "@/utilities/myFetch";
+import { fetchGet, fetchGetErrorHandled } from "@/utilities/myFetch";
 import wait from "@/utilities/wait";
 import Subtable, { SubtableData } from "@/components/Subtable/Subtable";
 import DATA from "@/components/Subtable/DummyData";
@@ -24,8 +24,9 @@ export default function Video() {
   const langaugeQuery = useQuery({
     queryKey: ["language"],
     queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/currentLanguage").then((r) => r.json()),
+      fetchGetErrorHandled("http://127.0.0.1:8000/currentLanguage"),
   });
+  console.log(langaugeQuery.data);
   const userLang = langaugeQuery.isSuccess
     ? langaugeQuery.data
     : "your language";
@@ -89,7 +90,7 @@ export default function Video() {
           <YoutubeEmbed embedId={v} />
           <p>Total Subtitles: {subtitles.length}</p>
           <p>
-            Subs in {userLang}:{" "}
+            Subs in {userLang}:
             {
               subtitles.filter(
                 (s) => s.language.toLowerCase() === userLang.toLowerCase()
@@ -97,13 +98,13 @@ export default function Video() {
             }
           </p>
           <p>
-            Highest rating for your langauge:{" "}
+            Highest rating for your langauge:
             {Math.max(
               ...subtitles
                 .filter(
                   (s) => s.language.toLowerCase() === userLang.toLowerCase()
                 )
-                .map((s) => s.rating)
+                .map((s) => s.rating.averageRating)
             )}
           </p>
           <button onClick={handleSubmit}>Make subs!</button>

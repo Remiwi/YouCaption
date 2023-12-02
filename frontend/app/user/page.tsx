@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { fetchGet } from "@/utilities/myFetch";
-import wait from "@/utilities/wait";
 
-import Subtable from "@/components/Subtable/Subtable";
-import DATA from "@/components/Subtable/DummyData";
+import Subtable, { SubtableData } from "@/components/Subtable/Subtable";
 
 export default function User() {
   // route parameters
@@ -43,9 +40,14 @@ export default function User() {
   // get subtitles
   const subtitlesQuery = useQuery({
     queryKey: ["subtitles", "author", u],
-    queryFn: () => wait(1000).then(() => DATA),
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/userPageCaptionData/" + u).then((r) =>
+        r.json()
+      ),
   });
-  const subtitles = subtitlesQuery.isSuccess ? subtitlesQuery.data : [];
+  const subtitles: SubtableData = subtitlesQuery.isSuccess
+    ? subtitlesQuery.data
+    : [];
 
   // stats from data
   const totalSubs = subtitles.length;
@@ -78,7 +80,9 @@ export default function User() {
             </div>
             <div className={styles.stat}>
               <p>{avgRating.toFixed(1)} avg rating</p>
-              <p>{avgRatingInYourLang.toFixed(1)} in your language</p>
+              <p>
+                {avgRatingInYourLang.toFixed(1)} in {userLang}
+              </p>
             </div>
             <p>{followers} followers</p>
           </div>

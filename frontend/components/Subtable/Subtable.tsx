@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,8 +13,8 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
-import wait from "@/utilities/wait";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 import styles from "./Subtable.module.css";
 
@@ -24,7 +24,10 @@ export type SubtableData = {
   author: string;
   video: string;
   language: string;
-  rating: number;
+  rating: {
+    averageRating: number;
+    captionID: string;
+  };
   download: string;
 }[];
 
@@ -33,7 +36,10 @@ export type SubtableProps = {
     author: string;
     video: string;
     language: string;
-    rating: number;
+    rating: {
+      averageRating: number;
+      captionID: string;
+    };
     download: string;
   }[];
   page: "author" | "video";
@@ -70,8 +76,8 @@ const columns = [
     header: "Rating",
     cell: (props: any) => (
       <div className={styles.ratingcell}>
-        <p>{props.getValue()}</p>
-        <Stars defaultValue={0} />
+        <p>{props.getValue().averageRating}</p>
+        <Stars defaultValue={0} captionID={props.getValue().captionID} />
       </div>
     ),
   },
@@ -231,25 +237,44 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
 
 type StarsProps = {
   defaultValue: 0 | 1 | 2 | 3 | 4 | 5;
-  author?: string;
-  video?: string;
-  user?: string;
+  captionID?: string;
 };
 
-function Stars({ defaultValue, author, video, user }: StarsProps) {
+function Stars({ defaultValue, captionID }: StarsProps) {
+  if (captionID === undefined) return <></>;
+
+  const qc = useQueryClient();
+
   const ratingQuery = useQuery({
-    queryKey: ["rating", author, video, user],
-    queryFn: () => wait(1000).then(() => 0),
+    queryKey: ["rating", captionID],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/userRating/" + captionID).then((res) =>
+        res.json()
+      ),
   });
-  const value = ratingQuery.isSuccess ? ratingQuery.data : defaultValue;
+  const value: number = ratingQuery.isSuccess ? ratingQuery.data : defaultValue;
+
+  const { mutate: setRating } = useMutation({
+    mutationKey: ["rating", captionID],
+    mutationFn: (ratingValue: number) =>
+      fetchPost(
+        "http://127.0.0.1:8000/createUserRating/" +
+          captionID +
+          "/" +
+          ratingValue.toString()
+      ).then((res) => res.json()),
+    onSuccess: (_, ratingValue) => {
+      qc.setQueryData(["rating", captionID], ratingValue);
+    },
+  });
 
   return (
     <div className={styles.starbox}>
-      <Star starValue={5} defaultOn={5 <= value} onClick={() => {}} />
-      <Star starValue={4} defaultOn={4 <= value} onClick={() => {}} />
-      <Star starValue={3} defaultOn={3 <= value} onClick={() => {}} />
-      <Star starValue={2} defaultOn={2 <= value} onClick={() => {}} />
-      <Star starValue={1} defaultOn={1 <= value} onClick={() => {}} />
+      <Star starValue={5} defaultOn={5 <= value} onClick={() => setRating(5)} />
+      <Star starValue={4} defaultOn={4 <= value} onClick={() => setRating(4)} />
+      <Star starValue={3} defaultOn={3 <= value} onClick={() => setRating(3)} />
+      <Star starValue={2} defaultOn={2 <= value} onClick={() => setRating(2)} />
+      <Star starValue={1} defaultOn={1 <= value} onClick={() => setRating(1)} />
     </div>
   );
 }

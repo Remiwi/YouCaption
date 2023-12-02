@@ -20,7 +20,8 @@ async def getUserGID(request: Request):
                 if userGID:
                     request.state.userGID = userGID[0]
                 else:
-                    raise HTTPException(status_code=404, detail = "No account found")
+                    raise HTTPException(
+                        status_code=404, detail="No account found")
                 print(userGID)
                 query = "SELECT username FROM users WHERE googleID = %s"
                 cursor.execute(query, (request.state.userGID, ))
@@ -222,19 +223,19 @@ async def createUserRating(request: Request, captionID: int, rating: int):
 # needs testing
 
 
-@router.get("/userRating/{username}/{captionID}")
-async def getUserRating(request: Request, username: str, captionID: int):
+@router.get("/userRating/{captionID}")
+async def getUserRating(request: Request, captionID: int):
     try:
-        print("Getting", username, "rating for captionID", captionID)
+        print("Getting", request.state.userGID,
+              "rating for captionID", captionID)
         getRating = """
             SELECT rating
             FROM ratings
-            JOIN users ON ratings.userGID = users.googleID
-            WHERE users.username = %s AND ratings.captionID = %s;
+            WHERE ratings.userGID = %s AND ratings.captionID = %s;
         """
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
-                cursor.execute(getRating, (username, captionID))
+                cursor.execute(getRating, (request.state.userGID, captionID))
                 rating = cursor.fetchone()
         return rating
     except Exception as e:
