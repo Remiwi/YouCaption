@@ -31,7 +31,7 @@ export default function User() {
   const langaugeQuery = useQuery({
     queryKey: ["language"],
     queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/currentLanguage").then((r) => r.json()),
+      fetchGetErrorHandled("http://127.0.0.1:8000/currentLanguage"),
   });
   const userLang = langaugeQuery.isSuccess
     ? langaugeQuery.data
@@ -112,15 +112,19 @@ export default function User() {
           <div className={styles.statsRow}>
             <div className={styles.stat}>
               <p>{totalSubs} subtitles</p>
-              <p>
-                {subsInYourLang} in {userLang}
-              </p>
+              {langaugeQuery.isSuccess && (
+                <p>
+                  {subsInYourLang} in {userLang}
+                </p>
+              )}
             </div>
             <div className={styles.stat}>
               <p>{avgRating.toFixed(1)} avg rating</p>
-              <p>
-                {avgRatingInYourLang.toFixed(1)} in {userLang}
-              </p>
+              {langaugeQuery.isSuccess && (
+                <p>
+                  {avgRatingInYourLang.toFixed(1)} in {userLang}
+                </p>
+              )}
             </div>
             <p>{followers} followers</p>
           </div>
