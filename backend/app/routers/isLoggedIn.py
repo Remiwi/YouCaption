@@ -7,6 +7,7 @@ from fastapi import File, UploadFile
 from typing import Annotated
 from contextlib import closing
 from dependencies import get_db_conn, verify
+from pydantic import BaseModel
 
 
 async def getUserGID(request: Request):
@@ -300,94 +301,82 @@ async def getUserRating(request: Request, captionID: int):
         return HTTPException(status_code=400, detail="Get User Rating Failed")
 
 
-@router.post("/onlyNotifyOnLangMatchFollowingTrue")
-async def notifyOnLangMatch(request: Request):
-    print("Notifying on Lang Match Following True")
-    updateLangMatch = """
-        UPDATE users
-        SET onlyNotifyOnLangMatchFollowing = TRUE
-        WHERE googleID = %s
-    """
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(updateLangMatch, (request.state.userGID,))
-            conn.commit()
-    return {"message": "Only notifying following on language match set to TRUE"}
+class FollowNotifSettingsShape(BaseModel):
+    getNotifs: int
+    onlyLangMatch: bool
 
 
-@router.post("/onlyNotifyOnLangMatchFollowingFalse")
-async def notifyOnLangMatch(request: Request):
-    print("Notifying on Lang Match Following False")
-    updateLangMatch = """
-        UPDATE users
-        SET onlyNotifyOnLangMatchFollowing = FALSE
-        WHERE googleID = %s
-    """
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(updateLangMatch, (request.state.userGID,))
-            conn.commit()
-    return {"message": "Only notifying following on language match set to FALSE"}
-
-
-@router.get("/followNotificationSettings")
-async def getFollowNotificationSettings(request: Request):
-    print("Getting Following Notification Settings for User:",
-          request.state.username)
+@router.get("/followingNotifSettings")
+async def getFollowingNotifSettings(request: Request):
     query = """
-        SELECT onlyNotifyOnLangMatchFollowing FROM users WHERE googleID = %s
+        SELECT getNotifsFollowing, onlyNotifyOnLangMatchFollowing
+        FROM users
+        WHERE googleID = %s
     """
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.execute(query, (request.state.userGID, ))
-            followSetting = cursor.fetchone()
-    print("Success")
-    return followSetting
+            notifSettings = cursor.fetchone()
+
+    data = {
+        "getNotifs": notifSettings[0],
+        "onlyLangMatch": notifSettings[1],
+    }
+
+    return data
 
 
-@router.post("/onlyNotifyOnLangMatchVideosTrue")
-async def notifyOnLangMatch(request: Request):
-    print("Notifying on Lang Match Videos True")
-    updateLangMatch = """
-        UPDATE users
-        SET onlyNotifyOnLangMatchVideos = TRUE
-        WHERE googleID = %s
-    """
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(updateLangMatch, (request.state.userGID,))
-            conn.commit()
-    return {"message": "Only notifying videos on language match set to TRUE"}
-
-
-@router.post("/onlyNotifyOnLangMatchVideosFalse")
-async def notifyOnLangMatch(request: Request):
-    print("Notifying on Lang Match")
-    updateLangMatch = """
-        UPDATE users
-        SET onlyNotifyOnLangMatchVideos = FALSE
-        WHERE googleID = %s
-    """
-    with closing(get_db_conn()) as conn:
-        with closing(conn.cursor()) as cursor:
-            cursor.execute(updateLangMatch, (request.state.userGID,))
-            conn.commit()
-    return {"message": "Only notifying videos on language match set to FALSE"}
-
-
-@router.get("/savedNotificationSettings")
-async def getFollowNotificationSettings(request: Request):
-    print("Getting Following Notification Settings for User:",
-          request.state.username)
+@router.post("/updateFollowingNotifSettings")
+async def updateFollowingNotifSettings(request: Request, settings: FollowNotifSettingsShape):
+    print("Updating following notifs")
     query = """
-        SELECT onlyNotifyOnLangMatchVideos FROM users WHERE googleID = %s
+        UPDATE users
+        SET getNotifsFollowing = %s, onlyNotifyOnLangMatchFollowing = %s
+        WHERE googleID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(query, (settings.getNotifs,
+                           settings.onlyLangMatch, request.state.userGID))
+            conn.commit()
+    return {"message": "Update Success"}
+
+
+@router.get("/videoNotifSettings")
+async def getVideoNotifSettings(request: Request):
+    query = """
+        SELECT getNotifsVideos, onlyNotifyOnLangMatchVideos
+        FROM users
+        WHERE googleID = %s
     """
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             cursor.execute(query, (request.state.userGID, ))
-            subscriptionSetting = cursor.fetchone()
-    print("Success")
-    return subscriptionSetting
+            notifSettings = cursor.fetchone()
+
+    data = {
+        "getNotifs": notifSettings[0],
+        "onlyLangMatch": notifSettings[1],
+    }
+
+    return data
+
+
+@router.post("/updateVideoNotifSettings")
+async def updateVideoNotifSettings(request: Request, settings: FollowNotifSettingsShape):
+    print("Updating video notifs")
+    query = """
+        UPDATE users
+        SET getNotifsVideos = %s, onlyNotifyOnLangMatchVideos = %s
+        WHERE googleID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(query, (settings.getNotifs,
+                           settings.onlyLangMatch, request.state.userGID))
+            conn.commit()
+    return {"message": "Update Success"}
+
 
 # add file type checking as well as path validation
 

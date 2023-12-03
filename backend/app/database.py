@@ -56,7 +56,7 @@ with closing(get_db_conn()) as conn:
 
         # conn.commit()
         # cursor.execute('''
-        #     DROP TABLE ratings                
+        #     DROP TABLE ratings
         # ''')
 
         cursor.execute('''
@@ -65,7 +65,9 @@ with closing(get_db_conn()) as conn:
             username VARCHAR(255) UNIQUE NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             language VARCHAR(255) NOT NULL DEFAULT 'EN',
+            getNotifsFollowing integer NOT NULL DEFAULT 0 CHECK (getNotifsFollowing IN (0, 1, 2)),
             onlyNotifyOnLangMatchFollowing BOOLEAN NOT NULL DEFAULT FALSE,
+            getNotifsVideos integer NOT NULL DEFAULT 0 CHECK (getNotifsVideos IN (0, 1, 2)),
             onlyNotifyOnLangMatchVideos BOOLEAN NOT NULL DEFAULT FALSE
         )
         ''')

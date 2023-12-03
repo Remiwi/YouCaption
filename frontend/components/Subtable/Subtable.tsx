@@ -84,7 +84,9 @@ const columns = [
   {
     accessorKey: "download",
     header: "Download",
-    cell: (props: any) => <a href={props.getValue()}>⇓</a>,
+    cell: (props: any) => (
+      <a href={"http://127.0.0.1:8000/download/" + props.getValue()}>⇓</a>
+    ),
     enableSorting: false,
   },
 ];

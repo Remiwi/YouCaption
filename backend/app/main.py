@@ -6,6 +6,7 @@ from contextlib import closing
 from database import get_db_conn
 from fastapi.middleware.cors import CORSMiddleware
 from routers import login, isLoggedIn, editor
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -85,7 +86,7 @@ async def root():
 
 
 @app.get("/videoPageCaptionData/{videoID}")
-async def get_VCapDataList(videoID: str):
+async def getVideoPageCaptionData(videoID: str):
     print("Getting Captions for videoID", videoID)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
@@ -114,7 +115,8 @@ async def get_VCapDataList(videoID: str):
                     "rating": {
                         "averageRating": float(cap[3] or 0),
                         "captionID": cap[4]
-                    }
+                    },
+                    "download": cap[4]
                 } for cap in caps
             ]
 
@@ -122,7 +124,7 @@ async def get_VCapDataList(videoID: str):
 
 
 @app.get("/userPageCaptionData/{username}")
-async def get_PCapDataList(username: str):
+async def getUserPageCaptionData(username: str):
     print("Getting Captions for user", username)
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
@@ -151,7 +153,8 @@ async def get_PCapDataList(username: str):
                     "rating": {
                         "averageRating": float(cap[3] or 0),
                         "captionID": cap[4]
-                    }
+                    },
+                    "download": cap[4]
                 } for cap in caps
             ]
 
@@ -205,3 +208,13 @@ async def getSubscriptionListFromVideoID(username: str):
             cursor.execute(getSubList, (username, ))
             SubList = cursor.fetchall()
             return (SubList)
+
+
+@app.get("/download/{captionID}")
+async def download(captionID: int):
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            query = "SELECT file_path FROM captions WHERE id = %s"
+            cursor.execute(query, (captionID,))
+            file_path = cursor.fetchone()[0]
+            return FileResponse(file_path, media_type="text/srt", filename=file_path)
