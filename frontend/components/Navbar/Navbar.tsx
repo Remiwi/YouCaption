@@ -3,11 +3,13 @@
 import styles from "./Navbar.module.css";
 import Link from "next/link";
 import Image from "next/image";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Gsignin from "../Auth/Gsignin";
-import { fetchGet, fetchPost } from "@/utilities/myFetch";
+import { fetchGet } from "@/utilities/myFetch";
 
 export default function Navbar() {
+  const queryClient = useQueryClient();
+
   const usernameQuery = useQuery({
     queryKey: ["username"],
     queryFn: () =>
@@ -29,6 +31,7 @@ export default function Navbar() {
       }),
     onSuccess: () => {
       usernameQuery.refetch();
+      queryClient.resetQueries({ queryKey: ["language"] });
     },
   });
 

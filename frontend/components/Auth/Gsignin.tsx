@@ -58,6 +58,7 @@ export default function Gsignin() {
     // window.location.reload();
     queryClient.setQueryData(["username"], { signedIn: true, username: "..." });
     queryClient.invalidateQueries({ queryKey: ["username"] });
+    queryClient.invalidateQueries({ queryKey: ["language"] });
   }
 
   return (

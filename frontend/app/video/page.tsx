@@ -112,32 +112,39 @@ export default function Video() {
         <div className={styles.videoColumn}>
           <YoutubeEmbed embedId={v} />
           <p>Total Subtitles: {subtitles.length}</p>
-          <p>
-            Subs in {userLang}:
-            {
-              subtitles.filter(
-                (s) => s.language.toLowerCase() === userLang.toLowerCase()
-              ).length
-            }
-          </p>
-          <p>
-            Highest rating for your langauge:
-            {Math.max(
-              ...subtitles
-                .filter(
+          {langaugeQuery.isSuccess && (
+            <p>
+              Subs in {userLang}:{" "}
+              {
+                subtitles.filter(
                   (s) => s.language.toLowerCase() === userLang.toLowerCase()
-                )
-                .map((s) => s.rating.averageRating)
-            )}
-          </p>
-          <button onClick={handleSubmit}>Make subs!</button>
-          {isSaved === undefined ? (
-            <button onClick={() => {}}>...</button>
-          ) : (
-            <button onClick={() => savedVideoMutation.mutate(!isSaved)}>
-              {isSaved ? "Unsave" : "Save"} video
-            </button>
+                ).length
+              }
+            </p>
           )}
+          {langaugeQuery.isSuccess && (
+            <p>
+              Highest rating for your langauge:{" "}
+              {Math.max(
+                ...subtitles
+                  .filter(
+                    (s) => s.language.toLowerCase() === userLang.toLowerCase()
+                  )
+                  .map((s) => s.rating.averageRating)
+              )}
+            </p>
+          )}
+          {langaugeQuery.isSuccess && (
+            <button onClick={handleSubmit}>Make subs!</button>
+          )}
+          {langaugeQuery.isSuccess &&
+            (isSaved === undefined ? (
+              <button onClick={() => {}}>...</button>
+            ) : (
+              <button onClick={() => savedVideoMutation.mutate(!isSaved)}>
+                {isSaved ? "Unsave" : "Save"} video
+              </button>
+            ))}
           {showModal && (
             <div className={styles.modal}>
               <div className={styles.modalcontent}>
