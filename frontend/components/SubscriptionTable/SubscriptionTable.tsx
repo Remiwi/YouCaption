@@ -12,6 +12,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 import styles from "./SubscriptionTable.module.css";
 
@@ -24,6 +26,18 @@ type SubscriptionTableProps = {
 };
 
 export default function SubscriptionTable({ videos }: SubscriptionTableProps) {
+  const qc = useQueryClient();
+  const unsaveQuery = useMutation({
+    mutationKey: ["saved"],
+    mutationFn: (videoID: string) =>
+      fetchPost("http://127.0.0.1:8000/unsaveVideo/" + videoID),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["saved"],
+      });
+    },
+  });
+
   const [pageNumber, setPageNumber] = useState("1");
   const [data, setData] = useState(videos);
   const columns = useMemo(
@@ -43,7 +57,7 @@ export default function SubscriptionTable({ videos }: SubscriptionTableProps) {
       },
       {
         accessorKey: "videoID",
-        header: "Unsubscribe",
+        header: "Unsave",
         cell: (props: any) => (
           <div
             className={styles.unfollowIcon}
@@ -51,6 +65,7 @@ export default function SubscriptionTable({ videos }: SubscriptionTableProps) {
               setData(
                 data.filter((video) => video.videoID !== props.getValue())
               );
+              unsaveQuery.mutate(props.getValue());
             }}
           >
             <Image

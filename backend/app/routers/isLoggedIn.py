@@ -138,6 +138,33 @@ async def unfollow(request: Request, usernameToUnfollow: str):
             conn.commit()
 
 
+@router.get("/isFollowing/{username}")
+async def isFollowing(request: Request, username: str):
+    print("Checking if", request.state.username, "is following", username)
+
+    if username == request.state.username:
+        return {
+            "isSelf": True,
+            "following": False,
+        }
+
+    query = """
+        SELECT * FROM userFollows
+        JOIN users ON followingGID = googleID
+        WHERE followerGID = %s AND username = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+
+            cursor.execute(query, (request.state.userGID, username))
+            isFollowing = cursor.fetchone()
+            print(isFollowing)
+    return {
+        "isSelf": False,
+        "following": bool(isFollowing),
+    }
+
+
 @router.get("/followingList")
 async def getFollowingList(request: Request):
     print("Getting Following List of ", request.state.username)
@@ -153,10 +180,17 @@ async def getFollowingList(request: Request):
             FollowingList = cursor.fetchall()
             print(FollowingList)
 
-    return {"Following List": FollowingList}
+    data = [
+        {
+            "username": entry[0],
+        }
+        for entry in FollowingList
+    ]
+
+    return {"followingList": data}
 
 
-@router.post("/subscribe/{videoID}")
+@router.post("/saveVideo/{videoID}")
 async def subscribeToVideo(request: Request, videoID: str):
     print("Subscribing to video with videoID:", videoID)
     subscribe = """
@@ -172,7 +206,7 @@ async def subscribeToVideo(request: Request, videoID: str):
     return {"message": "Subscription Success"}
 
 
-@router.post("/unsubscribe/{videoID}")
+@router.post("/unsaveVideo/{videoID}")
 async def unsubscribeToVideo(request: Request, videoID: str):
     print("Unsubscribing to video with videoID:", videoID)
     unsubscribe = """
@@ -186,7 +220,21 @@ async def unsubscribeToVideo(request: Request, videoID: str):
     return {"message": "Unsubscription Success"}
 
 
-@router.get("/subscriptionList")
+@router.get("/isSaved/{videoID}")
+async def isSaved(request: Request, videoID: str):
+    print("Checking if video is saved with videoID:", videoID)
+    query = """
+        SELECT * FROM userSavedVideos WHERE
+        userGID = %s AND videoID = %s
+    """
+    with closing(get_db_conn()) as conn:
+        with closing(conn.cursor()) as cursor:
+            cursor.execute(query, (request.state.userGID, videoID))
+            isSaved = cursor.fetchone()
+    return isSaved
+
+
+@router.get("/savedVideoList")
 async def getSubscriptionList(request: Request):
     print("Getting subscription list: ")
     getSubList = """
@@ -198,7 +246,15 @@ async def getSubscriptionList(request: Request):
             cursor.execute(getSubList, (request.state.userGID, ))
             subList = cursor.fetchall()
     print(subList)
-    return {"SubList": subList, "message": "Get Subcription List Success"}
+
+    data = [
+        {
+            "videoID": entry[0],
+        }
+        for entry in subList
+    ]
+
+    return {"savedList": data, }
 
 
 @router.post("/createUserRating/{captionID}/{rating}")
@@ -209,7 +265,8 @@ async def createUserRating(request: Request, captionID: int, rating: int):
             INSERT INTO ratings
             (captionID, userGID, rating)
             VALUES (%s, %s, %s)
-            ON CONFLICT DO NOTHING
+            ON CONFLICT (captionID, userGID) DO UPDATE SET
+            rating = EXCLUDED.rating
         """
         with closing(get_db_conn()) as conn:
             with closing(conn.cursor()) as cursor:
@@ -318,7 +375,7 @@ async def notifyOnLangMatch(request: Request):
     return {"message": "Only notifying videos on language match set to FALSE"}
 
 
-@router.get("/subscriptionNotificationSettings")
+@router.get("/savedNotificationSettings")
 async def getFollowNotificationSettings(request: Request):
     print("Getting Following Notification Settings for User:",
           request.state.username)

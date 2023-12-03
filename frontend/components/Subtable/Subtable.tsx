@@ -237,7 +237,7 @@ export default function Subtable({ subtitles, page }: SubtableProps) {
 
 type StarsProps = {
   defaultValue: 0 | 1 | 2 | 3 | 4 | 5;
-  captionID?: string;
+  captionID: string;
 };
 
 function Stars({ defaultValue, captionID }: StarsProps) {
@@ -262,9 +262,14 @@ function Stars({ defaultValue, captionID }: StarsProps) {
           captionID +
           "/" +
           ratingValue.toString()
-      ).then((res) => res.json()),
-    onSuccess: (_, ratingValue) => {
+      ),
+    onMutate: (ratingValue) => {
       qc.setQueryData(["rating", captionID], ratingValue);
+    },
+    onError: (error) => {
+      qc.invalidateQueries({
+        queryKey: ["rating", captionID],
+      });
     },
   });
 

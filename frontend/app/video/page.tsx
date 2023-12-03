@@ -3,12 +3,9 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { useQuery } from "@tanstack/react-query";
 import { fetchGet, fetchGetErrorHandled } from "@/utilities/myFetch";
-import wait from "@/utilities/wait";
 import Subtable, { SubtableData } from "@/components/Subtable/Subtable";
-import DATA from "@/components/Subtable/DummyData";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchPost } from "@/utilities/myFetch";
 
 export default function Video() {
@@ -83,6 +80,32 @@ export default function Video() {
     createTimeline();
   };
 
+  // saved video info
+  const qc = useQueryClient();
+
+  const savedVideoQuery = useQuery({
+    queryKey: ["savedVideo", v],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/isSaved/" + v).then((r) => r.json()),
+  });
+  const isSaved: boolean | undefined = savedVideoQuery.isSuccess
+    ? savedVideoQuery.data
+    : undefined;
+
+  const savedVideoMutation = useMutation({
+    mutationKey: ["savedVideo", v],
+    mutationFn: (save: boolean) => {
+      if (save) {
+        return fetchPost("http://127.0.0.1:8000/saveVideo/" + v);
+      } else {
+        return fetchPost("http://127.0.0.1:8000/unsaveVideo/" + v);
+      }
+    },
+    onSuccess: (_, save) => {
+      qc.setQueryData(["savedVideo", v], save);
+    },
+  });
+
   return (
     <>
       <div className={styles.columns}>
@@ -108,6 +131,13 @@ export default function Video() {
             )}
           </p>
           <button onClick={handleSubmit}>Make subs!</button>
+          {isSaved === undefined ? (
+            <button onClick={() => {}}>...</button>
+          ) : (
+            <button onClick={() => savedVideoMutation.mutate(!isSaved)}>
+              {isSaved ? "Unsave" : "Save"} video
+            </button>
+          )}
           {showModal && (
             <div className={styles.modal}>
               <div className={styles.modalcontent}>

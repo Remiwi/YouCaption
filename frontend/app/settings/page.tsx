@@ -60,19 +60,21 @@ export default function SettingsPage() {
 
   // Get follow list
   const followQuery = useQuery({
-    queryKey: ["following"],
-    queryFn: () => wait(1000).then(() => FOLLOWDATA),
+    queryKey: ["followList"],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/followingList").then((res) => res.json()),
   });
-  const following = followQuery.isSuccess ? followQuery.data : [];
+  const following = followQuery.isSuccess ? followQuery.data.followingList : [];
 
   // Get subscription list
-  const subscriptionQuery = useQuery({
-    queryKey: ["subscriptions"],
-    queryFn: () => wait(1000).then(() => SUBCRIPTIONDATA),
+  const savedQuery = useQuery({
+    queryKey: ["saved"],
+    queryFn: () =>
+      fetchGet("http://127.0.0.1:8000/savedVideoList").then((res) =>
+        res.json()
+      ),
   });
-  const subscriptions = subscriptionQuery.isSuccess
-    ? subscriptionQuery.data
-    : [];
+  const savedVideos = savedQuery.isSuccess ? savedQuery.data.savedList : [];
 
   return (
     <div className={styles.container}>
@@ -98,14 +100,14 @@ export default function SettingsPage() {
             />
           </div>
         </div>
-        <FollowTable users={[]} />
+        <FollowTable users={following} />
         <FakeForm
           text="Get notified when an author you follow publishes?"
-          thirdOption="Only for channels I'm subscribed to"
+          thirdOption="Only for videos I've saved"
         />
-        <SubscriptionTable videos={[]} />
+        <SubscriptionTable videos={savedVideos} />
         <FakeForm
-          text="Get notified when a channel you subscribe to gets a new post?"
+          text="Get notified when a saved video gets a new post?"
           thirdOption="Only from authors I follow"
         />
         <div />

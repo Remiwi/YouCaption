@@ -2,8 +2,8 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { useQuery } from "@tanstack/react-query";
-import { fetchGet } from "@/utilities/myFetch";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchGet, fetchGetErrorHandled, fetchPost } from "@/utilities/myFetch";
 
 import Subtable, { SubtableData } from "@/components/Subtable/Subtable";
 
@@ -49,16 +49,50 @@ export default function User() {
     ? subtitlesQuery.data
     : [];
 
+  // get follow info
+  const qc = useQueryClient();
+
+  const followQuery = useQuery({
+    queryKey: ["follow", u],
+    queryFn: () =>
+      fetchGetErrorHandled("http://127.0.0.1:8000/isFollowing/" + u),
+  });
+  const isFollowing = followQuery.isSuccess
+    ? followQuery.data.following
+    : false;
+
+  const followMutation = useMutation({
+    mutationKey: ["follow", u],
+    mutationFn: (follow: boolean) => {
+      if (follow) {
+        return fetchPost("http://127.0.0.1:8000/follow/" + u);
+      } else {
+        return fetchPost("http://127.0.0.1:8000/unfollow/" + u);
+      }
+    },
+    onMutate: () => {
+      qc.setQueryData(["follow", u], {
+        isSelf: false,
+        following: !isFollowing,
+      });
+      qc.setQueryData(
+        ["followers", u],
+        (parseInt(followers) + (isFollowing ? -1 : 1)).toString()
+      );
+    },
+  });
+
   // stats from data
   const totalSubs = subtitles.length;
   const subsInYourLang = subtitles.filter(
     (s) => s.language.toLowerCase() === userLang.toLowerCase()
   ).length;
-  const avgRating = subtitles.reduce((acc, s) => acc + s.rating, 0) / totalSubs;
+  const avgRating =
+    subtitles.reduce((acc, s) => acc + s.rating.averageRating, 0) / totalSubs;
   const avgRatingInYourLang =
     subtitles
       .filter((s) => s.language.toLowerCase() === userLang.toLowerCase())
-      .reduce((acc, s) => acc + s.rating, 0) / subsInYourLang;
+      .reduce((acc, s) => acc + s.rating.averageRating, 0) / subsInYourLang;
 
   return (
     <div className={styles.column}>
@@ -69,7 +103,11 @@ export default function User() {
         <div className={styles.headerRows}>
           <div className={styles.usernameRow}>
             <p>{u}</p>
-            <button>Follow</button>
+            {followQuery.isSuccess && !followQuery.data.isSelf && (
+              <button onClick={() => followMutation.mutate(!isFollowing)}>
+                {isFollowing ? "Unfollow" : "Follow"}
+              </button>
+            )}
           </div>
           <div className={styles.statsRow}>
             <div className={styles.stat}>

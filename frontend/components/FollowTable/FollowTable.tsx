@@ -12,6 +12,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchGet, fetchPost } from "@/utilities/myFetch";
 
 import styles from "./FollowTable.module.css";
 
@@ -24,6 +26,18 @@ type FollowTableProps = {
 };
 
 export default function FollowTable({ users }: FollowTableProps) {
+  const qc = useQueryClient();
+  const unfollowQuery = useMutation({
+    mutationKey: ["followList"],
+    mutationFn: (username: string) =>
+      fetchPost("http://127.0.0.1:8000/unfollow/" + username),
+    onSuccess: () => {
+      qc.invalidateQueries({
+        queryKey: ["followList"],
+      });
+    },
+  });
+
   const [pageNumber, setPageNumber] = useState("1");
   const [data, setData] = useState(users);
   const columns = useMemo(
@@ -51,6 +65,7 @@ export default function FollowTable({ users }: FollowTableProps) {
               setData(
                 data.filter((user) => user.username !== props.getValue())
               );
+              unfollowQuery.mutate(props.getValue());
             }}
           >
             <Image

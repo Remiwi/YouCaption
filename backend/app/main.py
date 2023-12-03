@@ -90,11 +90,17 @@ async def get_VCapDataList(videoID: str):
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             query = """
-                SELECT users.username AS author, videoID, captions.language, rating, captions.captionID AS captionID
-                FROM (
-                    captions JOIN users ON captions.userGID = users.googleID
-                )
-                WHERE videoID = %s
+                SELECT
+                    users.username AS author,
+                    videoID,
+                    captions.language,
+                    AVG(ratings.rating) AS avg_rating,
+                    captions.id AS captionID
+                FROM captions
+                    JOIN users ON captions.userGID = users.googleID
+                    LEFT JOIN ratings ON captions.id = ratings.captionID
+                WHERE captions.videoID = %s
+                GROUP BY users.username, captions.videoID, captions.language, captions.id
             """
 
             cursor.execute(query, (videoID,))
@@ -105,8 +111,10 @@ async def get_VCapDataList(videoID: str):
                     "author": cap[0],
                     "videoID": cap[1],
                     "language": cap[2],
-                    "rating": cap[3],
-                    "captionID": cap[4]
+                    "rating": {
+                        "averageRating": float(cap[3] or 0),
+                        "captionID": cap[4]
+                    }
                 } for cap in caps
             ]
 
@@ -119,11 +127,17 @@ async def get_PCapDataList(username: str):
     with closing(get_db_conn()) as conn:
         with closing(conn.cursor()) as cursor:
             query = """
-                SELECT users.username AS author, videoID, captions.language, rating, captions.captionID AS captionID
-                FROM (
-                    captions JOIN users ON captions.userGID = users.googleID
-                )
+                SELECT
+                    users.username AS author,
+                    videoID,
+                    captions.language,
+                    AVG(ratings.rating) AS avg_rating,
+                    captions.id AS captionID
+                FROM captions
+                    JOIN users ON captions.userGID = users.googleID
+                    LEFT JOIN ratings ON captions.id = ratings.captionID
                 WHERE users.username = %s
+                GROUP BY users.username, captions.videoID, captions.language, captions.id
             """
 
             cursor.execute(query, (username,))
@@ -135,7 +149,7 @@ async def get_PCapDataList(username: str):
                     "video": cap[1],
                     "language": cap[2],
                     "rating": {
-                        "averageRating": cap[3],
+                        "averageRating": float(cap[3] or 0),
                         "captionID": cap[4]
                     }
                 } for cap in caps
