@@ -15,9 +15,19 @@ export default function Navbar() {
   });
   const logoutMutation = useMutation({
     mutationKey: ["username"],
-    mutationFn: () => fetchPost("http://127.0.0.1:8000/logout"),
+    mutationFn: () =>
+      fetch("http://127.0.0.1:8000/logout", {
+        method: "POST",
+        credentials: "include",
+        mode: "cors",
+      }).then((res) => {
+        if (res.ok) {
+          return res;
+        } else {
+          throw new Error("Failed to logout");
+        }
+      }),
     onSuccess: () => {
-      console.log("Tessssssss");
       usernameQuery.refetch();
     },
   });
