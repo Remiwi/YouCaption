@@ -32,6 +32,8 @@ export default function Navbar() {
     onSuccess: () => {
       usernameQuery.refetch();
       queryClient.resetQueries({ queryKey: ["language"] });
+      queryClient.resetQueries({ queryKey: ["username"] });
+      queryClient.invalidateQueries();
     },
   });
 

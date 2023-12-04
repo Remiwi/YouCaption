@@ -5,8 +5,14 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import FollowTable from "@/components/FollowTable/FollowTable";
 import SubscriptionTable from "@/components/SubscriptionTable/SubscriptionTable";
+import { useRouter } from "next/navigation";
 
-import { fetchGet, fetchPost, fetchPostJSON } from "@/utilities/myFetch";
+import {
+  fetchGet,
+  fetchPost,
+  fetchPostJSON,
+  fetchGetErrorHandled,
+} from "@/utilities/myFetch";
 
 type NotifSettings = {
   getNotifs: 0 | 1 | 2 | null;
@@ -15,6 +21,7 @@ type NotifSettings = {
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
@@ -22,12 +29,11 @@ export default function SettingsPage() {
   // Get username
   const usernameQuery = useQuery({
     queryKey: ["username"],
-    queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/getUsername").then((res) => res.json()),
+    queryFn: () => fetchGetErrorHandled("http://127.0.0.1:8000/getUsername"),
   });
   const currentUsername = usernameQuery.isSuccess
     ? usernameQuery.data.username
-    : "";
+    : "...";
 
   // Update username
   const { mutate: mutateUsername } = useMutation({
@@ -45,9 +51,7 @@ export default function SettingsPage() {
   const languageQuery = useQuery({
     queryKey: ["language"],
     queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/currentLanguage").then((res) =>
-        res.json()
-      ),
+      fetchGetErrorHandled("http://127.0.0.1:8000/currentLanguage"),
   });
   const currentLanguage = languageQuery.isSuccess ? languageQuery.data : "";
 
@@ -63,18 +67,14 @@ export default function SettingsPage() {
   // Get follow list
   const followQuery = useQuery({
     queryKey: ["followList"],
-    queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/followingList").then((res) => res.json()),
+    queryFn: () => fetchGetErrorHandled("http://127.0.0.1:8000/followingList"),
   });
   const following = followQuery.isSuccess ? followQuery.data.followingList : [];
 
   // Get subscription list
   const savedQuery = useQuery({
     queryKey: ["saved"],
-    queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/savedVideoList").then((res) =>
-        res.json()
-      ),
+    queryFn: () => fetchGetErrorHandled("http://127.0.0.1:8000/savedVideoList"),
   });
   const savedVideos = savedQuery.isSuccess ? savedQuery.data.savedList : [];
 
@@ -88,9 +88,7 @@ export default function SettingsPage() {
   const followingNotifQuery = useQuery({
     queryKey: ["followingNotifSettings"],
     queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/followingNotifSettings").then((res) =>
-        res.json()
-      ),
+      fetchGetErrorHandled("http://127.0.0.1:8000/followingNotifSettings"),
   });
   if (followingNotifQuery.isSuccess && followingNotifState.getNotifs === null) {
     setFollowingNotifState(followingNotifQuery.data);
@@ -110,9 +108,7 @@ export default function SettingsPage() {
   const videoNotifQuery = useQuery({
     queryKey: ["videoNotifSettings"],
     queryFn: () =>
-      fetchGet("http://127.0.0.1:8000/videoNotifSettings").then((res) =>
-        res.json()
-      ),
+      fetchGetErrorHandled("http://127.0.0.1:8000/videoNotifSettings"),
   });
   if (videoNotifQuery.isSuccess && videoNotifState.getNotifs === null) {
     setVideoNotifState(videoNotifQuery.data);
@@ -124,6 +120,15 @@ export default function SettingsPage() {
         body: JSON.stringify(settings),
       }),
   });
+
+  if (usernameQuery.isLoading) {
+    return <h1>Loading...</h1>;
+  }
+
+  if (usernameQuery.data.detail === "No Session") {
+    router.push("/");
+    return <h1>Redirecting...</h1>;
+  }
 
   return (
     <div className={styles.container}>

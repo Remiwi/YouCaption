@@ -16,17 +16,16 @@ export function fetchGetErrorHandled(url: string, options?: any) {
     credentials: 'include',
   };
 
-  const mergedOptions: RequestInit = { ...headers, ...options };
-  return fetch(url, { ...headers, ...options })  .then(response => {
+  return fetch(url, { ...headers, ...options }).then(response => {
     if (!response.ok) {
-      if (response.status == 401) {
+      if (response.status === 401) {
         throw new Error('Please log in');
       } else {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
     }
     return response.json();
-  });;
+  });
 }
 
 export function fetchGetWithBody(url: string, options?: any) {

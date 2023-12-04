@@ -12,8 +12,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchGet, fetchPost } from "@/utilities/myFetch";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchPost } from "@/utilities/myFetch";
 
 import styles from "./SubscriptionTable.module.css";
 

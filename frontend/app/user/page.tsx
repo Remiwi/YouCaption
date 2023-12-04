@@ -103,11 +103,13 @@ export default function User() {
         <div className={styles.headerRows}>
           <div className={styles.usernameRow}>
             <p>{u}</p>
-            {followQuery.isSuccess && !followQuery.data.isSelf && (
-              <button onClick={() => followMutation.mutate(!isFollowing)}>
-                {isFollowing ? "Unfollow" : "Follow"}
-              </button>
-            )}
+            {langaugeQuery.isSuccess &&
+              followQuery.isSuccess &&
+              !followQuery.data.isSelf && (
+                <button onClick={() => followMutation.mutate(!isFollowing)}>
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </button>
+              )}
           </div>
           <div className={styles.statsRow}>
             <div className={styles.stat}>
