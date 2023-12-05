@@ -53,23 +53,27 @@ export default function Home() {
         video.
         <br />
         <br />
-        Big paragraph of context stuff below that roughly explains how the
-        website works and what to use it for and all that junk idk that's what
-        they do on the website im referencing and it looks pretty cool so i
-        think we should consider that as an option im just filling text now lol
-        i should rly learn how to use those lorem ipsum tools
+        YouCaption is an online platform for creating and distributing subtitles for videos made by independent digital creators.
         <br />
         <br />
-        Big paragraph of context stuff below that roughly explains how the
-        website works and what to use it for and all that junk idk that's what
-        they do on the website im referencing and it looks pretty cool so i
-        think we should consider that as an option im just filling text now lol
-        i should rly learn how to use those lorem ipsum tools
+        Using YouCaption, you have access to an easy to a caption editor to create awesome subtitles.
+        You can upload subtitles (from our editor or even from other outside sources) to be associated with corresponding videos, 
+        rate subtitles made by other users, and browse existing subtitles created for a myriad of videos.
         <br />
         <br />
-        Big paragraph of context stuff below that roughly explains how the
-        website works and what to use it for and all that junk idk that's what
-        they do on the website im referencing and it looks pretty cool
+        With YouCaption, users will be able to make subtitles for videos or creators that they like and distribute them to other fans who need them as easy as 1-2-3!
+        <br />
+        <br />
+        The discontinuation of Youtube's Community Captions in 2020 left users who needed the increased accessibility unprovided for. 
+        Youtube cited the 0.2% of users who used the Community Captioning service as too small a pool,
+        but this is not too small at all to us. 
+        <br />
+        <br />
+        There are currently over 5% of the world's population who are deaf or hard of hearing, which is around 430 Million people, according to the World Health Organization.
+        This value is also expected to increase by 2050 to over 700 million, which can also be estimated as 1 in 10 people.
+        Because of this, we sincerely and passionately believe in furthering accessibility online.
+        <br />
+        <br />
       </p>
     </div>
   );
