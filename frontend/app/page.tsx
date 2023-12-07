@@ -69,8 +69,8 @@ export default function Home() {
         but this is not too small at all to us. 
         <br />
         <br />
-        There are currently over 5% of the world's population who are deaf or hard of hearing, which is around 430 Million people, according to the World Health Organization.
-        This value is also expected to increase by 2050 to over 700 million, which can also be estimated as 1 in 10 people.
+        There are currently over 430 million of the world's population who are deaf or hard of hearing according to the World Health Organization.
+        This value is also expected to increase to over 700 million by 2050, which can also be estimated as 1 in 10 people.
         Because of this, we sincerely and passionately believe in furthering accessibility online.
         <br />
         <br />
