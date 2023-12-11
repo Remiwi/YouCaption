@@ -76,7 +76,7 @@ const columns = [
     header: "Rating",
     cell: (props: any) => (
       <div className={styles.ratingcell}>
-        <p>{props.getValue().averageRating}</p>
+        <p>{props.getValue().averageRating.toFixed(1)}</p>
         <Stars defaultValue={0} captionID={props.getValue().captionID} />
       </div>
     ),

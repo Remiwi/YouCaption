@@ -78,7 +78,7 @@ with closing(get_db_conn()) as conn:
             id SERIAL PRIMARY KEY,
             userGID VARCHAR(255) NOT NULL,
             videoID VARCHAR(255) NOT NULL,
-            file_path VARCHAR(255) UNIQUE NOT NULL,
+            file_path VARCHAR(255) NOT NULL,
             language VARCHAR(255),
             rating INT DEFAULT NULL,
             FOREIGN KEY (userGID) REFERENCES users(googleID)
